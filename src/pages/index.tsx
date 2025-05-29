@@ -1,10 +1,13 @@
-import { Box, Container, Grid, Typography } from "@mui/material"
+import { Box, Button, Container, Grid, Typography } from "@mui/material"
 import { AuthAction, withUser, withUserTokenSSR } from "next-firebase-auth"
 import { useEffect } from "react"
 import { useSnapshot } from "valtio"
 
-import DELETETHIS from "../components/DELETE_THIS"
+import AddKeyWord from "../components/AddKeyWord"
+import MarketPlaces from "../components/Marketplaces"
+import QuantitySelect from "../components/QuantitySelect"
 import Seo from "../components/Seo"
+import KeyWordTable from "../components/tables/KeyWordTable"
 import state from "../contexts/ValtioStore"
 
 export const getServerSideProps = withUserTokenSSR({
@@ -29,25 +32,30 @@ function HomePage() {
       <Box sx={{ minHeight: "86vh", py: 5 }}>
         <Container>
           <Grid container spacing={2}>
-            <Grid size={{ md: 3, xs: 12 }}></Grid>
-            <Grid size={{ md: 6, xs: 12 }}>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                <Typography align="center" className="text-md">
-                  Give your self admin first!{" "}
+            <Grid size={12}>
+              <Box>
+                <Typography>
+                  Market Recon- Cross Market Price Research
                 </Typography>
-                <Typography
-                  align="center"
-                  color="error"
-                  fontWeight="bold"
-                  mt={4}
-                >
-                  * Delete DELETE_THIS.tsx component file after!!!!
-                  <br />* Delete /api/user/delete_this route file!!!
-                </Typography>
-                <DELETETHIS />
+              </Box>
+              <Box>
+                <AddKeyWord />
               </Box>
             </Grid>
-            <Grid size={{ md: 3, xs: 12 }}></Grid>
+            <Grid size={6}>
+              <Box>
+                <MarketPlaces />
+              </Box>
+            </Grid>
+            <Grid size={6}>
+              <QuantitySelect />
+            </Grid>
+            <Grid size={12}>
+              <KeyWordTable />
+            </Grid>
+            <Grid size={12}>
+              <Button variant="outlined"> Save Search</Button>
+            </Grid>
           </Grid>
         </Container>
       </Box>
