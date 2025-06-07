@@ -1,15 +1,41 @@
 import { Box, FormControlLabel, FormGroup } from "@mui/material"
 import Checkbox from "@mui/material/Checkbox"
 
-export default function MarketPlaces() {
+interface Props {
+  readonly setSelectedStores: (value: string[]) => void
+  readonly selectedStores: string[]
+}
+export default function MarketPlaces({
+  setSelectedStores,
+  selectedStores,
+}: Props) {
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const store = event.target.name
+    if (event.target.checked) {
+      setSelectedStores([...selectedStores, store])
+    } else {
+      setSelectedStores(selectedStores.filter((s) => s !== store))
+    }
+  }
+
   return (
     <Box>
       <FormGroup>
         <Box display={"flex"} flexDirection={"row"}>
-          <FormControlLabel control={<Checkbox />} label="Amazon" />
-          <FormControlLabel control={<Checkbox />} label="Walmart" />
-          <FormControlLabel control={<Checkbox />} label="Ebay" />
-          <FormControlLabel control={<Checkbox />} label="Target" />
+          {["Amazon", "Walmart", "Target", "WayFair"].map((store) => {
+            return (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    name={store}
+                    checked={selectedStores.includes(store)}
+                    onChange={handleCheckboxChange}
+                  />
+                }
+                label={store}
+              />
+            )
+          })}
         </Box>
       </FormGroup>
     </Box>
