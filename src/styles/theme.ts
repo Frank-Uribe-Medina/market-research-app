@@ -3,58 +3,58 @@ import { createTheme } from "@mui/material"
 
 export const darkMode = {
   primary: {
-    main: "#afe507",
+    main: "#90CAF9",
   },
   secondary: {
-    main: "#ff0045",
-    light: "#ff0045",
-    dark: "#ff0045",
+    main: "#26A69A",
+    light: "#26A69A",
+    dark: "#26A69A",
   },
   offset: {
-    main: "#e5e5e5",
-    light: "rgba(0,0,0,0.75)",
-    dark: "#e5e5e5",
+    main: "#37474F",
+    light: "#37474F",
+    dark: "#37474F",
   },
   error: {
-    main: "#ff0045",
+    main: "#EF5350",
   },
   success: {
-    main: "#b4ff02",
+    main: "#81C784",
   },
   background: {
-    default: "#0e0e0e",
+    default: "#121212",
   },
   text: {
-    primary: "#fff",
-    secondary: "#000",
+    primary: "#FFFFFF",
+    secondary: "#B0BEC5",
   },
 }
 const lightMode = {
   primary: {
-    main: "#212121", // highlight
+    main: "#1976D2", // highlight
   },
   secondary: {
-    main: "#afe507",
-    light: "#7A4988",
-    dark: "#710193",
+    main: "#009688",
+    light: "#009688",
+    dark: "#009688",
   },
   offset: {
-    main: "#E1E1E1", // border
-    light: "#F6F6F6", // alt BG
-    dark: "#E1E1E1", // missing
+    main: "#F5F5F5", // border
+    light: "#F5F5F5", // alt BG
+    dark: "#F5F5F5", // missing
   },
   error: {
-    main: "#DF5060",
+    main: "#E53935",
   },
   success: {
-    main: "#0EB461",
+    main: "#4CAF50",
   },
   background: {
-    default: "#ffff", // main bg
+    default: "#FFFFFF", // main bg
   },
   text: {
-    primary: "#0e0e0e", // main text
-    secondary: "#212121", // sub text
+    primary: "#0E0E0E", // main text
+    secondary: "#37474F", // sub text
   },
 }
 

@@ -124,6 +124,13 @@ export default function Navbar({ fixed = false }: Props) {
                 </ListItemButton>
               </ListItem>
             </Link>
+            <Link href="/reports">
+              <ListItem>
+                <ListItemButton>
+                  <ListItemText primary={"Reports"} />
+                </ListItemButton>
+              </ListItem>
+            </Link>
             <Link href="/users">
               <ListItem>
                 <ListItemButton>
