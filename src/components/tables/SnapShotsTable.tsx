@@ -3,6 +3,7 @@ import {
   Chip,
   CircularProgress,
   Paper,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -80,47 +81,68 @@ export default function SnapshotsTable({ userId, bucketsData }: Props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {bucketsData?.map((snapshots) => {
-            return (
-              <TableRow
-                key={snapshots.createdAt}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell>{snapshots.name}</TableCell>
-                <TableCell>
-                  {formatFirebaseDate(snapshots.createdAt, "MM-DD-YYYY h:mm A")}
-                </TableCell>
-                <TableCell>
-                  {snapshots.ready ? (
-                    <Chip label="Ready" color="success" />
-                  ) : (
-                    <Chip
-                      label="Running List"
-                      color="secondary"
-                      icon={
-                        <CircularProgress
-                          size={14}
-                          thickness={5}
-                          sx={{ ml: 0.5 }}
-                        />
-                      }
-                    />
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    disabled={!snapshots.ready}
-                    sx={{ textTransform: "none", borderRadius: 2 }}
-                    onClick={() => void handleDownload(snapshots.id)}
-                  >
-                    Download
-                  </Button>
-                </TableCell>
-              </TableRow>
-            )
-          })}
+          {bucketsData.length > 0 ? (
+            bucketsData?.map((snapshots) => {
+              return (
+                <TableRow
+                  key={snapshots.createdAt}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <TableCell>{snapshots.name}</TableCell>
+                  <TableCell>
+                    {formatFirebaseDate(
+                      snapshots.createdAt,
+                      "MM-DD-YYYY h:mm A"
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {snapshots.ready ? (
+                      <Chip label="Ready" color="success" />
+                    ) : (
+                      <Chip
+                        label="Running List"
+                        color="secondary"
+                        icon={
+                          <CircularProgress
+                            size={14}
+                            thickness={5}
+                            sx={{ ml: 0.5 }}
+                          />
+                        }
+                      />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      disabled={!snapshots.ready}
+                      sx={{ textTransform: "none", borderRadius: 2 }}
+                      onClick={() => void handleDownload(snapshots.id)}
+                    >
+                      Download
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              )
+            })
+          ) : (
+            <TableRow>
+              {" "}
+              <TableCell>
+                <Skeleton></Skeleton>
+              </TableCell>
+              <TableCell>
+                <Skeleton></Skeleton>
+              </TableCell>
+              <TableCell>
+                <Skeleton></Skeleton>
+              </TableCell>
+              <TableCell>
+                <Skeleton></Skeleton>
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </TableContainer>
