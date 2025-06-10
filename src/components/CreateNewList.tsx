@@ -1,15 +1,11 @@
 import InfoOutlineIcon from "@mui/icons-material/InfoOutline"
 import {
+  Autocomplete,
   Box,
   Button,
   Chip,
   CircularProgress,
   FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  Skeleton,
   TextField,
   Tooltip,
   Typography,
@@ -20,26 +16,22 @@ import { toast } from "react-toastify"
 
 import { KeyWordActions } from "../lib/db/actions/KeyWords"
 import { useGetAllKeyWordLists } from "../lib/db/hooks/KeyWords"
+import { KeyWordObjectModal } from "../types/keyWordList.model"
 
 interface Props {
   readonly userId: string
-  readonly setKeyWordList: (value: string) => void
+  readonly setKeyWordListId: (value: string) => void
   readonly selectedListId: string
 }
 
 export default function CreateNewList({
   userId,
-  setKeyWordList,
+  setKeyWordListId,
   selectedListId,
 }: Props) {
   const [keywordListName, setKeyWordListName] = React.useState("")
   const [isDisabled, setIsDisabled] = useState(false)
   const [keyWordListSelected, setKeyWordListSelected] = useState(false)
-
-  const handleChange = (event: SelectChangeEvent) => {
-    setKeyWordListSelected(!keyWordListSelected)
-    setKeyWordList(event.target.value as string)
-  }
 
   const handleDelete = async () => {
     if (!keyWordListSelected) {
@@ -50,12 +42,39 @@ export default function CreateNewList({
     if (!result.error) {
       toast.success("Successfully Deleted Keyword List.")
       setKeyWordListSelected(false)
+      setKeyWordListName("")
     }
     refetch()
   }
   const queryClient = useQueryClient()
   const result = useGetAllKeyWordLists(userId, 10).data?.pages
   const { refetch } = useGetAllKeyWordLists(userId, 10)
+  const options: KeyWordObjectModal[] = []
+  result?.map((item) => {
+    item.content.map((list) => {
+      options.push(list)
+    })
+  })
+  const handleChange = (
+    event: React.SyntheticEvent,
+    value: string | KeyWordObjectModal | null
+  ) => {
+    if (typeof value === "string") {
+      console.log("In the Handle Change", value)
+      setKeyWordListSelected(!keyWordListSelected)
+      setKeyWordListId("")
+      setKeyWordListName("")
+    } else if (value) {
+      setKeyWordListSelected(true)
+      setKeyWordListName(value.name ?? "")
+      setKeyWordListId(value?.id ?? "")
+    } else {
+      // Value is null (cleared)
+      setKeyWordListSelected(false)
+      setKeyWordListId("")
+      setKeyWordListName("")
+    }
+  }
 
   const handleCreateList = async () => {
     if (keywordListName.length <= 0) {
@@ -76,65 +95,55 @@ export default function CreateNewList({
 
   return (
     <Box>
-      <Box
-        display={"flex"}
-        flexDirection={"row"}
-        justifyContent={"center"}
-        gap={2}
-        p={2}
-      >
-        <TextField
-          placeholder="New List Name."
-          value={keywordListName}
-          onChange={(e) => setKeyWordListName(e.target.value)}
-        ></TextField>
-        <Button variant="contained" onClick={() => void handleCreateList()}>
-          <Box display={"flex"} flexDirection={"row"} gap={1}>
-            {isDisabled ? (
-              <CircularProgress size={24} color="secondary" />
-            ) : (
-              <></>
-            )}
-            <Typography>Create new List of Keywords</Typography>
-            <Tooltip title="Create Keyword lists to save for later." arrow>
-              <InfoOutlineIcon />
-            </Tooltip>
-          </Box>
-        </Button>
-      </Box>
-      <Box
-        sx={{ minWidth: 120 }}
-        display={"flex"}
-        flexDirection={"column"}
-        gap={1}
-      >
-        <FormControl fullWidth>
-          <InputLabel>Select List</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            label="Age"
+      <FormControl fullWidth>
+        <Box display={"flex"} justifyContent={"center"} gap={2}>
+          <Autocomplete
+            freeSolo
+            options={options ? options : []}
+            getOptionLabel={(options) =>
+              typeof options === "string" ? options : options.name
+            }
             onChange={handleChange}
-          >
-            {result ? (
-              result.map((item) => {
-                return (
-                  item.content.map((KeyWordList) => (
-                    <MenuItem key={KeyWordList.id} value={KeyWordList.id}>
-                      {KeyWordList.name}
-                    </MenuItem>
-                  )) || []
-                )
-              })
-            ) : (
-              <Skeleton></Skeleton>
+            sx={{ width: 300 }}
+            renderInput={(params) => (
+              <Box display={"flex"} flexDirection={"column"} gap={1}>
+                <TextField
+                  {...params}
+                  label="Create/Select a List"
+                  value={keywordListName}
+                  onChange={(e) => setKeyWordListName(e.target.value)}
+                />
+                <Box>
+                  <Chip
+                    label="Delete List"
+                    onDelete={() => void handleDelete()}
+                    size="medium"
+                  />
+                </Box>
+              </Box>
             )}
-          </Select>
-        </FormControl>
-        <Box>
-          <Chip label="Delete List" onDelete={() => void handleDelete()} />
+          />
+          <Box>
+            <Button
+              variant="contained"
+              onClick={() => void handleCreateList()}
+              sx={{ height: 55 }}
+            >
+              <Box display={"flex"} flexDirection={"row"} gap={1}>
+                {isDisabled ? (
+                  <CircularProgress size={24} color="secondary" />
+                ) : (
+                  <></>
+                )}
+                <Typography>Create new List of Keywords</Typography>
+                <Tooltip title="Create Keyword lists to save for later." arrow>
+                  <InfoOutlineIcon />
+                </Tooltip>
+              </Box>
+            </Button>
+          </Box>
         </Box>
-      </Box>{" "}
+      </FormControl>
     </Box>
   )
 }

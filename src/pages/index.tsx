@@ -42,7 +42,7 @@ function HomePage() {
   const snap = useSnapshot(state)
   const theme = useTheme()
 
-  const [selectedKeyWordListID, setKeyWordList] = React.useState("")
+  const [selectedKeyWordListID, setKeyWordListId] = React.useState("")
   const [keyWord, setNewKeyWord] = React.useState("")
   const [resultLimit, setResultLimit] = React.useState("")
   const [refetch, setRefetch] = React.useState(false)
@@ -180,7 +180,7 @@ function HomePage() {
 
                 <CreateNewList
                   userId={snap.user.id}
-                  setKeyWordList={setKeyWordList}
+                  setKeyWordListId={setKeyWordListId}
                   selectedListId={selectedKeyWordListID}
                 />
               </Paper>

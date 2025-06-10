@@ -3,6 +3,7 @@ import { ReactNode } from "react"
 
 import Footer from "./Footer"
 import Header from "./Header"
+import PermanentDrawerLeft from "./LeftDrawer"
 
 interface Props {
   readonly children: ReactNode
@@ -16,11 +17,13 @@ export default function DefaultLayout({ children }: Props) {
       <Box sx={{ minHeight: "100vh" }}>
         <Grid container>
           <Grid size={{ xs: 12 }}>
+            <Header />
+
             <main className="App">
-              <Header />
+              <PermanentDrawerLeft />
               {children}
-              <Footer />
             </main>
+            <Footer />
           </Grid>
         </Grid>
       </Box>
