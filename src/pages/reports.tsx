@@ -11,19 +11,42 @@ import { SnapShotActions } from "../lib/db/actions/Snapshots"
 import { BucketsShape } from "../types/snapshots.model"
 import { formatFirebaseDate } from "../utils"
 
+interface ReportsPageProps {
+  readonly initial_data: BucketsShape[]
+}
+
 export const getServerSideProps = withUserTokenSSR({
   whenUnauthed: AuthAction.REDIRECT_TO_LOGIN,
 })(async (ctx) => {
   console.log(ctx.user?.claims)
+  const initialBucketsData = await SnapShotActions.GetAllSnapShotBuckets(
+    ctx.user?.id ?? "",
+    10
+  )
+  const rawBuckets = initialBucketsData.content as BucketsShape[]
+  //This is for formatting as you will get a 500 error if it has a firebase timestamp
+  const formatted_bucket: BucketsShape[] = []
+  rawBuckets.forEach((item: BucketsShape) => {
+    const newBucket: BucketsShape = {
+      id: item.id ?? "",
+      name: item.name ?? "",
+      createdAt: formatFirebaseDate(item?.createdAt),
+      snapshots: item?.snapshots,
+      ready: item?.ready,
+    }
+    formatted_bucket.push(newBucket)
+  })
 
   return {
-    props: {},
+    props: {
+      initial_date: formatted_bucket,
+    },
   }
 })
 
-function ReportsPage() {
+function ReportsPage({ initial_data }: ReportsPageProps) {
   const snap = useSnapshot(state)
-  const [bucketsData, setBucketsData] = useState<BucketsShape[]>([])
+  const [bucketsData, setBucketsData] = useState<BucketsShape[]>(initial_data)
 
   const getProgress = useCallback(async () => {
     const data = { userId: snap.user?.id, listIds: bucketsData }
@@ -85,4 +108,4 @@ function ReportsPage() {
   )
 }
 
-export default withUser()(ReportsPage)
+export default withUser<ReportsPageProps>()(ReportsPage)
