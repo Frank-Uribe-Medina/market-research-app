@@ -1,6 +1,7 @@
 import DashboardIcon from "@mui/icons-material/Dashboard"
 import FolderSpecialIcon from "@mui/icons-material/FolderSpecial"
 import HelpIcon from "@mui/icons-material/Help"
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye"
 import SettingsIcon from "@mui/icons-material/Settings"
 import Box from "@mui/material/Box"
 import CssBaseline from "@mui/material/CssBaseline"
@@ -50,6 +51,14 @@ export default function PermanentDrawerLeft() {
                 <FolderSpecialIcon />
               </ListItemIcon>
               <ListItemText primary={"Reports"} />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton href="/watchlist">
+              <ListItemIcon>
+                <RemoveRedEyeIcon />
+              </ListItemIcon>
+              <ListItemText primary={"Watchlist"} />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
