@@ -8,10 +8,7 @@ const firestore = admin.firestore()
 //This is a dummy scraper functions
 
 async function runScraperForProduct(productData: any): Promise<number> {
-  console.log(
-    "Scraping price for ",
-    productData.productTitle || productData.productId
-  )
+  console.log("Scraping price this is whats going on here  ", productData)
   await new Promise((resolve) => setTimeout(resolve, 500))
 
   return Math.floor(Math.random() * 1000) + 1

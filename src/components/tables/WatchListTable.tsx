@@ -17,7 +17,9 @@ import * as React from "react"
 import { toast } from "react-toastify"
 
 import { WatchListActions } from "../../lib/db/actions/WatchList"
-import { WatchListProduct } from "../../types/watchlist.mode"
+import { PriceHistoryShape, WatchListProduct } from "../../types/watchlist.mode"
+import DeleteModal from "../modals/DeleteModal"
+import LineChartModal from "../modals/LineChartModal"
 
 interface Props {
   readonly userId: string
@@ -33,9 +35,27 @@ export default function WatchListTable({
   setRefetch,
 }: Props) {
   const theme = useTheme()
+  const [selectedProductHistory, setSelectedProductHistory] = React.useState<
+    PriceHistoryShape[]
+  >([])
+  const [selectedForDelete, setSelectedForDelete] =
+    React.useState<WatchListProduct>()
+  const [open, setOpen] = React.useState(false)
+  const handleOpen = (productHistory: PriceHistoryShape[]) => {
+    setOpen(true)
+    setSelectedProductHistory(productHistory)
+  }
+  const handleClose = () => setOpen(false)
+  const handleDeleteClose = () => setDeleteOpen(false)
+
+  const [deleteOpen, setDeleteOpen] = React.useState(false)
+  const handleDeleteOpen = (product: WatchListProduct) => {
+    setDeleteOpen(true)
+    setSelectedForDelete(product)
+  }
 
   const handleDelete = async (id: string) => {
-    console.log("Is this getting pased?", id)
+    handleDeleteClose()
     const result = await WatchListActions.DeleteProduct(userId, id)
     console.log(result)
     if (result.error) {
@@ -94,15 +114,28 @@ export default function WatchListTable({
                     </TableCell>
 
                     <TableCell>
-                      <Box>
-                        <IconButton>
+                      <Box display={"flex"} flexDirection={"row"}>
+                        <IconButton
+                          onClick={() => void handleOpen(product.priceHistory)}
+                        >
                           <RemoveRedEyeIcon />
                         </IconButton>
+                        <LineChartModal
+                          data={selectedProductHistory}
+                          handleClose={handleClose}
+                          open={open}
+                        />
                         <IconButton
-                          onClick={() => void handleDelete(product.id)}
+                          onClick={() => void handleDeleteOpen(product)}
                         >
                           <DeleteIcon />
                         </IconButton>
+                        <DeleteModal
+                          handleClose={handleDeleteClose}
+                          open={deleteOpen}
+                          data={selectedForDelete ? selectedForDelete : null}
+                          handleDelete={() => handleDelete}
+                        />
                       </Box>
                     </TableCell>
                   </TableRow>
