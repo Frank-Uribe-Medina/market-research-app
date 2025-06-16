@@ -2,6 +2,7 @@ import DeleteIcon from "@mui/icons-material/Delete"
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye"
 import {
   Box,
+  Chip,
   IconButton,
   Paper,
   Table,
@@ -84,7 +85,13 @@ export default function WatchListTable({
 
                     <TableCell>{product.productTitle}</TableCell>
 
-                    <TableCell>{product.latestPrice}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={product.latestPrice}
+                        color="success"
+                        variant="outlined"
+                      />
+                    </TableCell>
 
                     <TableCell>
                       <Box>

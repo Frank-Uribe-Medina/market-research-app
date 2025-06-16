@@ -8,7 +8,7 @@ import AddToWatchList from "../components/watchlist/AddtoWatchList"
 import state from "../contexts/ValtioStore"
 import { WatchListActions } from "../lib/db/actions/WatchList"
 import { WatchListProduct } from "../types/watchlist.mode"
-import { formatFirebaseDate } from "../utils"
+import { formatFirebaseDate, formatTheTimeStampInWatchlist } from "../utils"
 
 interface WatchListPageProps {
   readonly watchlistData: WatchListProduct[]
@@ -27,6 +27,7 @@ export const getServerSideProps = withUserTokenSSR({
   temp.forEach((item) => {
     const temp_item: WatchListProduct = {
       ...item,
+      priceHistory: item.priceHistory.map(formatTheTimeStampInWatchlist),
       createdAt: formatFirebaseDate(item.createdAt),
     }
     formated_watchlist_data.push(temp_item)
@@ -61,6 +62,7 @@ export default function Watchlist({ watchlistData }: WatchListPageProps) {
         const temp: WatchListProduct[] = watchlist.content.map(
           (item: WatchListProduct) => ({
             ...item,
+            priceHistory: item.priceHistory.map(formatTheTimeStampInWatchlist),
             createdAt: formatFirebaseDate(item.createdAt),
           })
         )

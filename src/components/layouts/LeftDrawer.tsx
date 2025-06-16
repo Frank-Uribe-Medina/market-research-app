@@ -15,12 +15,15 @@ import ListItemText from "@mui/material/ListItemText"
 import Toolbar from "@mui/material/Toolbar"
 import * as React from "react"
 
+import Link from "../Link"
+
 const drawerWidth = 240
 
 export default function PermanentDrawerLeft() {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
+      <Box></Box>
 
       <Drawer
         sx={{
@@ -34,8 +37,30 @@ export default function PermanentDrawerLeft() {
         variant="permanent"
         anchor="left"
       >
-        <Toolbar />
+        <Toolbar>
+          {" "}
+          <Link href={"/"}>
+            <Box
+              sx={{
+                objectFit: "contain",
+                "&:hover": {
+                  opacity: 0.7,
+                  transform: "scale(1.05)",
+                  transition: "all 0.5s ease-in-out",
+                },
+              }}
+              height={20}
+            >
+              <img
+                src="/assets/images/logo.png"
+                alt="Brother Solutions "
+                style={{ objectFit: "contain", height: 20 }}
+              />
+            </Box>
+          </Link>
+        </Toolbar>
         <Divider />
+        <Box></Box>
         <List>
           <ListItem disablePadding>
             <ListItemButton href="/">

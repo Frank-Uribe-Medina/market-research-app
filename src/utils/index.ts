@@ -6,6 +6,8 @@ import timezone from "dayjs/plugin/timezone"
 import updateLocale from "dayjs/plugin/updateLocale"
 import utc from "dayjs/plugin/utc"
 
+import { PriceHistoryShape } from "../types/watchlist.mode"
+
 dayjs.extend(relativeTime)
 dayjs.extend(updateLocale)
 dayjs.extend(duration)
@@ -125,3 +127,10 @@ export const isObjectEmpty = (obj: object) => {
 
 export const BLUR_DATA_URL =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsrKyoBwAEyAHrxvdSbAAAAABJRU5ErkJggg=="
+
+export function formatTheTimeStampInWatchlist(products: PriceHistoryShape) {
+  return {
+    ...products,
+    timestamp: formatFirebaseDate(products.timestamp),
+  }
+}

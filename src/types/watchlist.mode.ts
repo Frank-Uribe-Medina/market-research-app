@@ -6,6 +6,11 @@ export interface WatchListProduct {
   productTitle: string
   marketplace: string
   latestPrice: number
-  priceHistory: [{ price: number; timestamp: Timestamp | string }]
+  priceHistory: { price: number; timestamp: Timestamp | string }[]
   createdAt: Timestamp | string
+}
+
+export interface PriceHistoryShape {
+  price: number
+  timestamp: Timestamp | string
 }
