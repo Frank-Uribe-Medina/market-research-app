@@ -11,6 +11,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
   useTheme,
 } from "@mui/material"
 import * as React from "react"
@@ -54,15 +55,15 @@ export default function WatchListTable({
     setSelectedForDelete(product)
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string): Promise<void> => {
     handleDeleteClose()
     const result = await WatchListActions.DeleteProduct(userId, id)
     console.log(result)
     if (result.error) {
-      return toast.error(result.message)
+      toast.error(result.message)
     }
     setRefetch(!refetch)
-    return toast.success(result.message)
+    toast.success(result.message)
   }
   return (
     <TableContainer
@@ -78,10 +79,13 @@ export default function WatchListTable({
         <TableHead>
           <TableRow>
             <TableCell sx={{ fontWeight: "bold", textTransform: "uppercase" }}>
+              Product
+            </TableCell>
+            <TableCell sx={{ fontWeight: "bold", textTransform: "uppercase" }}>
               MarketPlace
             </TableCell>
             <TableCell sx={{ fontWeight: "bold", textTransform: "uppercase" }}>
-              Product ID
+              Product Link
             </TableCell>
             <TableCell sx={{ fontWeight: "bold", textTransform: "uppercase" }}>
               Product Title
@@ -98,12 +102,38 @@ export default function WatchListTable({
           {data
             ? data.map((product, index) => {
                 console.log("Item:", index, product)
+                console.log("Items Image:", index, product.productImage)
                 return (
                   <TableRow key={product.id}>
-                    <TableCell>{product.marketplace}</TableCell>
-                    <TableCell>{product.productId}</TableCell>
+                    <TableCell>
+                      <img
+                        src={
+                          product.productImage
+                            ? product.productImage[0]
+                            : "/assets/images/logo.png"
+                        }
+                        style={{ objectFit: "contain", borderRadius: 10 }}
+                        height={50}
+                        alt=""
+                      />
+                    </TableCell>
 
-                    <TableCell>{product.productTitle}</TableCell>
+                    <TableCell>{product.marketPlace}</TableCell>
+                    <TableCell sx={{ maxWidth: 200 }}>
+                      <Box
+                        sx={{
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        <a href={product.productId}> {product.productId}</a>
+                      </Box>
+                    </TableCell>
+
+                    <TableCell>
+                      <Typography>{product.productTitle}</Typography>
+                    </TableCell>
 
                     <TableCell>
                       <Chip
@@ -125,16 +155,14 @@ export default function WatchListTable({
                           handleClose={handleClose}
                           open={open}
                         />
-                        <IconButton
-                          onClick={() => void handleDeleteOpen(product)}
-                        >
+                        <IconButton onClick={() => handleDeleteOpen(product)}>
                           <DeleteIcon />
                         </IconButton>
                         <DeleteModal
                           handleClose={handleDeleteClose}
                           open={deleteOpen}
                           data={selectedForDelete ? selectedForDelete : null}
-                          handleDelete={() => handleDelete}
+                          handleDelete={handleDelete}
                         />
                       </Box>
                     </TableCell>

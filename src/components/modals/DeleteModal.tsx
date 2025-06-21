@@ -24,7 +24,7 @@ interface Props {
   readonly handleClose: (value: boolean) => void
   readonly open: boolean
   readonly data?: WatchListProduct | null
-  readonly handleDelete: (value: string) => void
+  readonly handleDelete: (value: string) => Promise<void>
 }
 
 export default function DeleteModal({

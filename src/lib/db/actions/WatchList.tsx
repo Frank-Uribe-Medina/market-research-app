@@ -40,8 +40,9 @@ export const WatchListActions = {
         temp.push({
           id: d.id ?? "",
           latestPrice: d.latestPrice ?? 0,
-          marketplace: d.marketPlace ?? "",
+          marketPlace: d.marketPlace ?? "",
           priceHistory: d.priceHistory ?? [],
+          productImage: d.productImage ?? "",
           productId: d.productId ?? "",
           productTitle: d.productTitle ?? "",
           createdAt: d.createdAt,
@@ -61,7 +62,7 @@ export const WatchListActions = {
   },
   AddNewProduct: async (
     userId: string,
-    data: { productId: string; marketplace: string }
+    data: { productId: string; marketplace: string; zipCode?: string }
   ) => {
     try {
       const collectionRef = collection(
@@ -75,6 +76,7 @@ export const WatchListActions = {
           id: docRef.id,
           productId: data.productId ?? "",
           marketPlace: data.marketplace ?? "",
+          zipCode: data.zipCode ?? "",
           productTitle: "",
           latestPrice: "",
           priceHistory: [],
