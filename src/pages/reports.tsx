@@ -28,11 +28,8 @@ export const getServerSideProps = withUserTokenSSR({
   const formatted_bucket: BucketsShape[] = []
   rawBuckets.forEach((item: BucketsShape) => {
     const newBucket: BucketsShape = {
-      id: item.id ?? "",
-      name: item.name ?? "",
+      ...item,
       createdAt: formatFirebaseDate(item?.createdAt),
-      snapshots: item?.snapshots,
-      ready: item?.ready,
     }
     formatted_bucket.push(newBucket)
   })
@@ -46,7 +43,7 @@ export const getServerSideProps = withUserTokenSSR({
 
 function ReportsPage({ initial_data }: ReportsPageProps) {
   const snap = useSnapshot(state)
-  const [bucketsData, setBucketsData] = useState<BucketsShape[]>(initial_data)
+  const [bucketsData, setBucketsData] = useState<BucketsShape[]>([])
 
   const getProgress = useCallback(async () => {
     const data = { userId: snap.user?.id, listIds: bucketsData }
@@ -91,7 +88,10 @@ function ReportsPage({ initial_data }: ReportsPageProps) {
             <Typography variant="h5" fontWeight="bold">
               Reports Table
             </Typography>
-            <SnapshotsTable userId={snap.user?.id} bucketsData={bucketsData} />
+            <SnapshotsTable
+              userId={snap.user?.id}
+              bucketsData={initial_data ? initial_data : bucketsData}
+            />
           </Box>
         ) : (
           <Box

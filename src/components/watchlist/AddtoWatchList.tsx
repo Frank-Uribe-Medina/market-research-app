@@ -21,6 +21,7 @@ export default function AddToWatchList({
 }: Props) {
   console.log("UserID", userId)
   const [productId, setProductId] = React.useState("")
+  const [zipCode, setZipCode] = React.useState("")
 
   const handleAddToWatchList = async () => {
     if (productId.length <= 0) {
@@ -30,7 +31,11 @@ export default function AddToWatchList({
       toast.error("Please Select a Marketplace to add to Watchlist.")
       throw "Please Select Valid Marketplace."
     }
-    const data = { productId: productId, marketplace: selectedMarketPlace }
+    const data = {
+      productId: productId,
+      marketplace: selectedMarketPlace,
+      zipCode: zipCode,
+    }
     const result = WatchListActions.AddNewProduct(userId, data)
     if ((await result).error) {
       console.error((await result).error)
@@ -59,22 +64,26 @@ export default function AddToWatchList({
         <MenuItem value={"Walmart"}>Walmart</MenuItem>
         <MenuItem value={"Target"}>Target</MenuItem>
         <MenuItem value={"Wayfair"}>Wayfair</MenuItem>
-        <MenuItem value={"Alibaba"}>Alibaba</MenuItem>
       </Select>
       <Box>
         {selectedMarketPlace === "Amazon" ? (
-          <Box>
+          <Box display={"flex"} gap={1}>
             <TextField
-              placeholder="Enter ASIN"
+              placeholder="Enter URL"
               fullWidth
               onChange={(e) => setProductId(e.target.value)}
+            />
+            <TextField
+              placeholder="Zipcode"
+              fullWidth
+              onChange={(e) => setZipCode(e.target.value)}
             />
           </Box>
         ) : null}
         {selectedMarketPlace === "Walmart" ? (
           <Box>
             <TextField
-              placeholder="Enter ProductID"
+              placeholder="Enter URL"
               onChange={(e) => setProductId(e.target.value)}
               fullWidth
             />
@@ -83,22 +92,13 @@ export default function AddToWatchList({
         {selectedMarketPlace === "Target" ? (
           <Box>
             <TextField
-              placeholder="Link of Product"
+              placeholder="Enter URL"
               fullWidth
               onChange={(e) => setProductId(e.target.value)}
             />
           </Box>
         ) : null}
         {selectedMarketPlace === "Wayfair" ? (
-          <Box>
-            <TextField
-              placeholder="Link of Product"
-              fullWidth
-              onChange={(e) => setProductId(e.target.value)}
-            />
-          </Box>
-        ) : null}
-        {selectedMarketPlace === "Alibaba" ? (
           <Box>
             <TextField
               placeholder="Link of Product"
