@@ -180,7 +180,7 @@ function HomePage() {
                       )
                     }
                     disabled={isDisabled}
-                    onClick={() => void runList}
+                    onClick={() => void runList()}
                   >
                     Run List
                   </Button>
