@@ -1,6 +1,5 @@
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"
+import { PlayArrow } from "@mui/icons-material"
 import InfoOutlineIcon from "@mui/icons-material/InfoOutline"
-import PlayCircleIcon from "@mui/icons-material/PlayCircle"
 import {
   Box,
   Button,
@@ -8,26 +7,24 @@ import {
   Container,
   Grid,
   Paper,
-  Skeleton,
-  TextField,
   Tooltip,
   Typography,
-  useTheme,
 } from "@mui/material"
 import axios from "axios"
 import { AuthAction, withUser, withUserTokenSSR } from "next-firebase-auth"
 import React, { useEffect } from "react"
 import { toast } from "react-toastify"
+import { useDebouncedCallback } from "use-debounce"
 import { useSnapshot } from "valtio"
 
-import CreateNewList from "../components/CreateNewList"
-import MarketPlaces from "../components/Marketplaces"
-import QuantitySelect from "../components/QuantitySelect"
+import AddKeywordForm from "../components/forms/AddKeyword"
+import TrendingCategories from "../components/QuantitySelect"
 import Seo from "../components/Seo"
 import KeyWordTable from "../components/tables/KeyWordTable"
 import state from "../contexts/ValtioStore"
-import { KeyWordActions } from "../lib/db/actions/KeyWords"
-import { KeyWordObjectModal } from "../types/keyWordList.model"
+import { useGetAllKeyWordLists } from "../lib/db/hooks/KeyWords"
+import { AxiosScrapeStartResponse } from "../types/axios.model"
+import { KeywordShapeFirebase } from "../types/keyWordList.model"
 
 export const getServerSideProps = withUserTokenSSR({
   whenUnauthed: AuthAction.REDIRECT_TO_LOGIN,
@@ -40,35 +37,44 @@ export const getServerSideProps = withUserTokenSSR({
 
 function HomePage() {
   const snap = useSnapshot(state)
-  const theme = useTheme()
+  const [keywords, addKeyword] = React.useState<KeywordShapeFirebase[]>([])
+  const { data: AllKeywords, refetch: refetchKeywords } = useGetAllKeyWordLists(
+    snap.user?.id,
+    10
+  )
 
-  const [selectedKeyWordListID, setKeyWordListId] = React.useState("")
-  const [keyWord, setNewKeyWord] = React.useState("")
-  const [resultLimit, setResultLimit] = React.useState("")
-  const [refetch, setRefetch] = React.useState(false)
   const [isDisabled, setIsDisabled] = React.useState(false)
-
-  const [selectedMarketPlaces, setSelectedMarketPlaces] = React.useState<
-    string[]
-  >([])
-  const [listOfKeyWords, setKeyWords] =
-    React.useState<KeyWordObjectModal | null>(null)
 
   useEffect(() => {
     console.log(snap.user)
   }, [snap.user])
+
   useEffect(() => {
-    if (!selectedKeyWordListID || !snap.user?.id) return
-    const fetchData = async () => {
-      const keyWords = await KeyWordActions.GetList(
-        snap.user?.id ? snap.user.id : "",
-        selectedKeyWordListID
-      )
-      setKeyWords(keyWords.content ?? null)
-      setRefetch(true)
+    const timerId = setTimeout(() => {
+      refetchKeywords()
+    }, 1000)
+
+    return () => {
+      clearTimeout(timerId)
     }
-    fetchData()
-  }, [selectedKeyWordListID, snap.user?.id, refetch])
+  }, [keywords, refetchKeywords])
+  const runList = useDebouncedCallback(async () => {
+    console.log("CLICKED THE BUTTON TO RUN LIST")
+    try {
+      const response = await axios.post<AxiosScrapeStartResponse>(
+        `/api/scrape/start`,
+        { userId: snap.user?.id }
+      )
+      if (response.data.error) {
+        throw Error(response.data.message)
+      }
+    } catch (err: any) {
+      toast.error(err)
+      console.error(err)
+    } finally {
+      setIsDisabled(false)
+    }
+  }, 500)
 
   if (!snap.user) {
     return (
@@ -91,56 +97,6 @@ function HomePage() {
       </Box>
     )
   }
-  const handleScrape = async () => {
-    setIsDisabled(!isDisabled)
-
-    if (listOfKeyWords && listOfKeyWords.keyWords.length <= 0) {
-      toast.error("Please add a keyword before running list.")
-      return
-    }
-    const data = {
-      userId: snap.user?.id,
-      listName: listOfKeyWords?.name,
-      listId: listOfKeyWords?.id,
-    }
-    await axios
-      .post("/api/scrape/", data)
-      .then(() => {
-        toast.success("Starting.")
-      })
-      .catch((response) => {
-        toast.error(response)
-      })
-    setIsDisabled(false)
-  }
-  const handleAddingKeyWord = async () => {
-    if (Number(resultLimit) <= 0 || undefined) {
-      toast.error("Set Limit for keyword")
-      return
-    }
-    if (selectedMarketPlaces.length <= 0) {
-      toast.error("Add Marketplace Search.")
-      return
-    }
-    const data = {
-      keyword: keyWord,
-      marketplaces: selectedMarketPlaces,
-      quantity: resultLimit,
-    }
-    KeyWordActions.UpdateKeyWordListWithNewKeyWords(
-      snap.user?.id ? snap.user.id : "",
-      selectedKeyWordListID,
-      data
-    )
-
-    // Re-fetch list
-    const updatedList = await KeyWordActions.GetList(
-      snap.user?.id ? snap.user?.id : "",
-      selectedKeyWordListID
-    )
-    setKeyWords(updatedList.content ? updatedList.content : null)
-    setNewKeyWord("")
-  }
 
   return (
     <>
@@ -158,208 +114,86 @@ function HomePage() {
           </Box>
 
           <Grid container spacing={3}>
-            {/* Add Keyword Section */}
-            <Grid size={{ xs: 12 }}>
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Box
-                  display={"flex"}
-                  flexDirection={"row"}
-                  gap={1}
-                  justifyContent={"center"}
-                  alignItems={"center"}
-                >
-                  <Typography variant="h6" gutterBottom>
-                    Create / Select Keyword List
-                  </Typography>
-                  <Box>
-                    <Tooltip title="Create a List of related Keywords, that will search across the selected marketplaces and be ready to download in the reports page.">
-                      <InfoOutlineIcon fontSize="small" />
-                    </Tooltip>
-                  </Box>
-                </Box>
-
-                <CreateNewList
-                  userId={snap.user.id}
-                  setKeyWordListId={setKeyWordListId}
-                  selectedListId={selectedKeyWordListID}
+            {" "}
+            <Grid size={6}>
+              <Paper elevation={2} sx={{ p: 4 }}>
+                <AddKeywordForm
+                  addKeyword={addKeyword}
+                  isDisabled={isDisabled}
+                  setIsDisabled={setIsDisabled}
                 />
               </Paper>
             </Grid>
-
             {/* Marketplaces & Quantity Select */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <Paper elevation={2} sx={{ p: 3, height: "100%" }}>
-                <Box
+              <Paper
+                elevation={2}
+                sx={{
+                  p: 3,
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Typography
+                  variant="h6"
                   display={"flex"}
-                  flexDirection={"row"}
-                  gap={1}
-                  justifyContent={"center"}
-                  alignItems={"center"}
-                >
-                  <Typography variant="h6" gutterBottom>
-                    Select Marketplaces
-                  </Typography>
-                  <Box>
-                    <Tooltip title="Select the marketplace you want to search per keyword.">
-                      <InfoOutlineIcon fontSize={"small"} />
-                    </Tooltip>
-                  </Box>
-                </Box>
-
-                <MarketPlaces
-                  selectedStores={selectedMarketPlaces}
-                  setSelectedStores={setSelectedMarketPlaces}
-                />
-              </Paper>
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Paper elevation={2} sx={{ p: 3, height: "100%" }}>
-                <Box
-                  display={"flex"}
-                  flexDirection={"row"}
                   justifyContent={"center"}
                   alignItems={"center"}
                   gap={1}
                 >
-                  <Typography variant="h6" gutterBottom>
-                    Result Per Keyword
-                  </Typography>
-                  <Box>
-                    <Tooltip title="This Controls how many results you want per keyword on the list. Keep in mind the more results per keyword will significantly increase the time to grab data. ">
-                      <InfoOutlineIcon fontSize={"small"} />
-                    </Tooltip>
-                  </Box>
-                </Box>
+                  <Tooltip title="See the Trending categories for each available marketplace. ">
+                    <InfoOutlineIcon fontSize={"small"} />
+                  </Tooltip>
+                  Trending Categories
+                </Typography>
 
-                <QuantitySelect
-                  setResultLimit={setResultLimit}
-                  result={resultLimit}
-                />
+                <TrendingCategories />
               </Paper>
             </Grid>
-            <Grid size={{ xs: 12 }}>
-              <Paper elevation={2} sx={{ p: 3, height: "100%" }}>
-                {/* Add New Keyword */}
-                {selectedKeyWordListID ? (
-                  <Box display={"flex"} flexDirection={"column"} gap={1}>
-                    <Box
-                      display={"flex"}
-                      flexDirection={"row"}
-                      justifyContent={"left"}
-                      alignItems={"center"}
-                      gap={1}
-                    >
-                      <Typography variant="h6" gutterBottom>
-                        Add Keyword to list
-                      </Typography>
-                      <Box>
-                        <ArrowForwardIosIcon
-                          fontSize="small"
-                          sx={{ color: theme.palette.primary.main }}
-                        />{" "}
-                      </Box>
-                      <Typography
-                        variant="h6"
-                        color={theme.palette.primary.main}
-                        gutterBottom
-                      >
-                        {listOfKeyWords?.name}
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2" color="textDisabled">
-                      eg: 32 oz water bottle for school
-                    </Typography>
-                    <Box
-                      display={"flex"}
-                      flexDirection={"row"}
-                      justifyContent={"space-between"}
-                      gap={4}
-                    >
-                      <TextField
-                        label="New Keyword"
-                        variant="outlined"
-                        fullWidth
-                        value={keyWord}
-                        onChange={(e) => setNewKeyWord(e.target.value)}
-                      />
-                      <Button
-                        variant="contained"
-                        size="large"
-                        fullWidth
-                        onClick={() => void handleAddingKeyWord()}
-                      >
-                        Add to List
-                      </Button>
-                    </Box>
-                  </Box>
-                ) : (
-                  <Box>
-                    <Typography color={theme.palette.error.main}>
-                      Select a List.
-                    </Typography>
-                    <Skeleton height={50} />
-                  </Box>
-                )}
-              </Paper>
-            </Grid>
-
             {/* Keyword Table */}
             <Grid size={{ xs: 12 }}>
-              <Paper elevation={2} sx={{ p: 3 }}>
-                <Box
-                  display={"flex"}
-                  flexDirection={"row"}
-                  justifyContent={"space-between"}
-                  alignItems={"center"}
-                >
-                  {" "}
-                  <Typography variant="h6" gutterBottom>
-                    Keywords in{" "}
-                    {listOfKeyWords ? (
-                      <span style={{ color: theme.palette.primary.main }}>
-                        {listOfKeyWords?.name}{" "}
-                      </span>
-                    ) : (
-                      <span style={{ color: theme.palette.error.main }}>
-                        Select a List{" "}
-                      </span>
-                    )}
-                    List
+              <Paper
+                elevation={2}
+                sx={{ p: 3, display: "flex", flexDirection: "column" }}
+              >
+                <Box display={"flex"} justifyContent={"space-between"} mb={2}>
+                  <Typography
+                    variant="h6"
+                    gutterBottom
+                    display={"flex"}
+                    gap={1}
+                    alignItems={"center"}
+                  >
+                    <Tooltip title="See the Trending categories for each available marketplace. ">
+                      <InfoOutlineIcon fontSize={"small"} />
+                    </Tooltip>
+                    Your Keywords
                   </Typography>
-                  <Box sx={{ textAlign: "right" }}>
-                    <Button
-                      variant="outlined"
-                      size="large"
-                      onClick={() => void handleScrape()}
-                      disabled={isDisabled}
-                    >
-                      <Box display={"flex"} flexDirection={"row"} gap={1}>
-                        {isDisabled ? (
-                          <Box>
-                            <CircularProgress size={16} />
-                          </Box>
-                        ) : (
-                          <Box>
-                            <PlayCircleIcon color="secondary" />
-                          </Box>
-                        )}
-                        Run List
-                      </Box>
-                    </Button>
-                  </Box>
+                  <Button
+                    variant="outlined"
+                    startIcon={
+                      isDisabled ? (
+                        <CircularProgress size={10} />
+                      ) : (
+                        <PlayArrow />
+                      )
+                    }
+                    disabled={isDisabled}
+                    onClick={() => void runList}
+                  >
+                    Run List
+                  </Button>
                 </Box>
-
                 <KeyWordTable
-                  keyWords={listOfKeyWords?.keyWords ?? null}
                   userId={snap.user.id}
-                  listId={listOfKeyWords?.id ?? ""}
-                  refetch={setRefetch}
+                  keywords={AllKeywords?.pages[0].content ?? null}
+                  triggerRefetch={addKeyword}
+                  isDisabled={isDisabled}
+                  setIsDisabled={setIsDisabled}
                 />
               </Paper>
             </Grid>
-
-            {/* Save Search Button */}
-            <Grid size={{ xs: 12 }}></Grid>
           </Grid>
         </Container>
       </Box>

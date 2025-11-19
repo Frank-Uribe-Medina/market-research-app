@@ -11,28 +11,37 @@ import {
   query,
   QueryConstraint,
   setDoc,
+  startAfter,
   Timestamp,
   updateDoc,
 } from "firebase/firestore"
 
-import {
-  KeyWordObjectModal,
-  KeyWordShape,
-} from "../../../types/keyWordList.model"
+import { KeywordShapeFirebase } from "../../../types/keyWordList.model"
+import { LastKey } from "../../../types/params.model"
 import { firestore } from ".."
 
 export const KeyWordActions = {
-  CreateKeyWordList: async (userId: string, keyWordListName: string) => {
-    // Issue found here is that I need to make sure that the user is loaded on the page level so that
-    // There is a definite user ID here
-    const collectionRef = collection(firestore, `userlists/${userId}/lists`)
+  AddKeyWord: async (
+    userId: string,
+    keyword: string,
+    marketplaces: string[],
+    limitInput: number
+  ) => {
+    const collectionRef = collection(
+      firestore,
+      `user_keywords/${userId}/keywords`
+    )
     const docRef = doc(collectionRef)
 
     await setDoc(
       docRef,
 
       {
-        name: keyWordListName,
+        id: docRef.id,
+        userId: userId,
+        keyword: keyword,
+        marketplaces: marketplaces,
+        limitInput: limitInput,
         createdAt: Timestamp.fromDate(dayjs().toDate()),
       },
       { merge: true }
@@ -43,24 +52,36 @@ export const KeyWordActions = {
       message: "Successfully Created Keyword List.",
     }
   },
-  GetAllKeyWordLists: async (userId: string, limitNum: number) => {
+  GetAllKeyWords: async (
+    userId: string,
+    limitNum: number,
+    lastKey: LastKey
+  ) => {
     try {
       const constraints: QueryConstraint[] = []
+      if (lastKey) {
+        constraints.push(startAfter(lastKey.ref))
+      }
       constraints.push(orderBy("createdAt", "desc"), limit(limitNum))
 
-      const collectionRef = collection(firestore, `userlists/${userId}/lists/`)
+      const collectionRef = collection(
+        firestore,
+        `user_keywords/${userId}/keywords/`
+      )
       const queryRef = query(collectionRef, ...constraints)
       const docsRef = await getDocs(queryRef)
 
-      const temp: KeyWordObjectModal[] = []
+      const temp: KeywordShapeFirebase[] = []
       docsRef.docs.forEach((doc) => {
-        const d = doc.data()
+        const d = doc.data() as KeywordShapeFirebase
         temp.push({
           id: doc.id,
-          keyWords: d.keyWords,
+          userId: d.userId,
+          keyword: d.keyword,
+          marketplaces: d.marketplaces,
+          limitInput: d.limitInput,
+          product_history: d.product_history,
           createdAt: d.createdAt,
-          ready: d.cready,
-          name: d.name,
         })
       })
       const lk = docsRef.docs.at(-1)
@@ -71,8 +92,7 @@ export const KeyWordActions = {
         error: true,
         content: [],
         lastKey: null,
-        message:
-          typeof err === "string" ? err : "Unable to get KeyWord Lists Data.",
+        message: typeof err === "string" ? err : "Unable to get Keyword List.",
       }
     }
   },
@@ -96,74 +116,22 @@ export const KeyWordActions = {
       }
     }
   },
-  GetList: async (userId: string, listId: string) => {
-    // /userlists/${userID}/lists/${listID}
-    // FireBase Path
-    try {
-      const docRef = doc(firestore, "userlists", userId, "lists", listId)
-      const docSnap = await getDoc(docRef)
-      if (!docSnap.exists()) {
-        throw "Document Does not exits"
-      }
-
-      const content = docSnap?.data()
-
-      const data: KeyWordObjectModal = {
-        id: docRef.id,
-        name: content.name ?? "",
-        keyWords: content.keyWords ?? "",
-        createdAt: content.createdAt ?? "",
-        ready: content.ready ?? "",
-        ...content,
-      }
-      return {
-        error: false,
-        message: "Successfully Grabed Key Word List",
-        content: data,
-      }
-    } catch (err: any) {
-      console.error(err)
-      return {
-        error: true,
-        message:
-          typeof err === "string" ? err : "Unable to Get List of KeyWords.",
-      }
-    }
-  },
-  DeleteKeyWord: async (
-    userId: string,
-    listId: string,
-    keywordToDelete: string
-  ) => {
-    // /userlists/${userID}/lists/${listID}
-
+  DeleteKeyWord: async (userId: string, keywordId: string) => {
+    //         `user_keywords/${userId}/keywords/${keywordId}`
     try {
       console.log("In catch statement")
-      const docRef = doc(firestore, `userlists/${userId}/lists/${listId}`)
+      const docRef = doc(
+        firestore,
+        `user_keywords/${userId}/keywords/${keywordId}`
+      )
       const docSnap = await getDoc(docRef)
       if (!docSnap.exists()) {
         throw "List Does not Exist."
       }
-      // I need to filter out the keyword that matches
-      const KeyWordData = docSnap.data()
-      const data: KeyWordObjectModal = {
-        id: docRef.id,
-        keyWords: KeyWordData.keyWords,
-        ready: KeyWordData.ready,
-        name: KeyWordData.name,
-        createdAt: KeyWordData.createdAt,
-      }
-      console.log(data)
-      const filterKeyWords = data.keyWords.filter(
-        (item: KeyWordShape) => item.keyword !== keywordToDelete
-      )
-      console.log(filterKeyWords)
-      await updateDoc(docRef, {
-        keyWords: filterKeyWords,
-      })
+      await deleteDoc(docRef)
       return {
         error: false,
-        message: "Successfully Deleted KeyWord.",
+        message: "Successfully Deleted Keyword.",
       }
     } catch (err: any) {
       console.error(err)
@@ -171,22 +139,6 @@ export const KeyWordActions = {
         error: true,
         message:
           typeof err === "string" ? err : "Unable to delete keyword from list.",
-      }
-    }
-  },
-  DeleteList: async (userId: string, listId: string) => {
-    try {
-      const docsRef = doc(firestore, `userlists/${userId}/lists/${listId}`)
-      await deleteDoc(docsRef)
-      return {
-        error: false,
-        message: "Successfully Deleted List.",
-      }
-    } catch (err: any) {
-      console.error(err)
-      return {
-        error: true,
-        message: typeof err === "string" ? err : "Unable to delete list.",
       }
     }
   },
