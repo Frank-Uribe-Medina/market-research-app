@@ -1,4 +1,5 @@
-import { Chip, Skeleton } from "@mui/material"
+import DeleteIcon from "@mui/icons-material/Delete"
+import { Chip, CircularProgress, Skeleton } from "@mui/material"
 import Paper from "@mui/material/Paper"
 import Table from "@mui/material/Table"
 import TableBody from "@mui/material/TableBody"
@@ -11,28 +12,34 @@ import * as React from "react"
 import { toast } from "react-toastify"
 
 import { KeyWordActions } from "../../lib/db/actions/KeyWords"
-import { KeyWordShape } from "../../types/keyWordList.model"
+import { KeywordShapeFirebase } from "../../types/keyWordList.model"
 
 interface Props {
-  readonly keyWords: KeyWordShape[] | null
-  readonly userId: string
-  readonly listId: string
-  readonly refetch: (value: boolean) => void
+  readonly userId: string | undefined
+  readonly keywords: KeywordShapeFirebase[] | null
+  readonly isDisabled: boolean
+  readonly setIsDisabled: (value: boolean) => void
+  readonly triggerRefetch: (value: any) => any
 }
 
 export default function KeyWordTable({
-  keyWords,
   userId,
-  listId,
-  refetch,
+  keywords,
+  triggerRefetch,
+  isDisabled,
+  setIsDisabled,
 }: Props) {
-  const handleDeleteKeywordFromList = async (keyWord: string) => {
-    const result = await KeyWordActions.DeleteKeyWord(userId, listId, keyWord)
+  const [activeKeyword, setActiveKeyword] = React.useState("")
+  const deleteKeyword = async (keywordId: string) => {
+    setIsDisabled(!isDisabled)
+    setActiveKeyword(keywordId)
+    const result = await KeyWordActions.DeleteKeyWord(userId ?? "", keywordId)
 
     if (!result.message) {
       toast.error(result?.message ?? "")
     }
-    refetch(false)
+    triggerRefetch([])
+    setIsDisabled(false)
     toast.success("Successfully deleted keyword.")
   }
 
@@ -41,26 +48,26 @@ export default function KeyWordTable({
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>KeyWord</TableCell>
+            <TableCell>Keyword</TableCell>
             <TableCell>Marketplaces</TableCell>
-            <TableCell>Result Per Word</TableCell>
+            <TableCell>Results Per Word</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {keyWords && keyWords.length > 0 ? (
-            keyWords.map((keyWord, index) => (
+          {keywords ? (
+            keywords.map((keyword, index) => (
               <TableRow
                 key={index}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
-                  {keyWord.keyword}
+                  {isDisabled ? <Skeleton /> : keyword.keyword}
                 </TableCell>
                 <TableCell component="th" scope="row">
-                  {keyWord.marketplaces ? (
+                  {keyword.marketplaces ? (
                     <Box display={"flex"} flexDirection={"row"} gap={1}>
-                      {keyWord.marketplaces.map((marketplace) => (
+                      {keyword.marketplaces.map((marketplace) => (
                         <Chip label={marketplace} />
                       ))}
                     </Box>
@@ -69,14 +76,20 @@ export default function KeyWordTable({
                   )}
                 </TableCell>
                 <TableCell component="th" scope="row">
-                  {keyWord.quantity ? keyWord.quantity : ""}
+                  {isDisabled ? <Skeleton /> : (keyword.limitInput ?? 2)}
                 </TableCell>
                 <TableCell component="th" scope="row">
                   <Chip
                     label="Delete Keyword"
                     variant="outlined"
-                    onDelete={() =>
-                      void handleDeleteKeywordFromList(keyWord.keyword)
+                    onDelete={() => void deleteKeyword(keyword.id)}
+                    disabled={activeKeyword === keyword.id && isDisabled}
+                    deleteIcon={
+                      activeKeyword === keyword.id && isDisabled ? (
+                        <CircularProgress size={10} />
+                      ) : (
+                        <DeleteIcon />
+                      )
                     }
                   />{" "}
                 </TableCell>

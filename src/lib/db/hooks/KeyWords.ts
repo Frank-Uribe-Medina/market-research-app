@@ -15,9 +15,10 @@ export const useGetAllKeyWordLists = (userId = "", limit = 10) => {
     isFetched,
     refetch,
   } = useInfiniteQuery({
-    queryKey: [CACHE_KEY.getListOfKeyWords, limit],
+    enabled: !!userId,
+    queryKey: [CACHE_KEY.getAllKeywords, limit],
     queryFn: async ({}: InfiniteParam) => {
-      return await KeyWordActions.GetAllKeyWordLists(userId, limit)
+      return await KeyWordActions.GetAllKeyWords(userId, limit, null)
     },
     initialPageParam: null,
     getPreviousPageParam: (firstPage) => firstPage.lastKey ?? undefined,

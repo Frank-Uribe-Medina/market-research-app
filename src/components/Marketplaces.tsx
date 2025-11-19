@@ -17,18 +17,17 @@ export default function MarketPlaces({
       setSelectedStores(selectedStores.filter((s) => s !== store))
     }
   }
-
   return (
     <Box>
       <FormGroup>
-        <Box display={"flex"} flexDirection={"row"}>
-          {["Amazon", "Walmart", "Target", "WayFair"].map((store) => {
+        <Box display={"flex"} flexWrap={"wrap"}>
+          {["Noon"].map((store) => {
             return (
               <FormControlLabel
                 control={
                   <Checkbox
                     name={store}
-                    checked={selectedStores.includes(store)}
+                    checked={selectedStores?.includes(store)}
                     onChange={handleCheckboxChange}
                   />
                 }
