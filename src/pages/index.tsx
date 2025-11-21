@@ -1,5 +1,5 @@
-import { PlayArrow } from "@mui/icons-material"
 import InfoOutlineIcon from "@mui/icons-material/InfoOutline"
+import SaveAsIcon from "@mui/icons-material/SaveAs"
 import {
   Box,
   Button,
@@ -142,7 +142,7 @@ function HomePage() {
                   alignItems={"center"}
                   gap={1}
                 >
-                  <Tooltip title="See the Trending categories for each available marketplace. ">
+                  <Tooltip title="WORK IN PROGRESS. See the Trending categories for each available marketplace. ">
                     <InfoOutlineIcon fontSize={"small"} />
                   </Tooltip>
                   Trending Categories
@@ -168,7 +168,7 @@ function HomePage() {
                     <Tooltip title="See the Trending categories for each available marketplace. ">
                       <InfoOutlineIcon fontSize={"small"} />
                     </Tooltip>
-                    Your Keywords
+                    Your Search Terms
                   </Typography>
                   <Button
                     variant="outlined"
@@ -176,13 +176,13 @@ function HomePage() {
                       isDisabled ? (
                         <CircularProgress size={10} />
                       ) : (
-                        <PlayArrow />
+                        <SaveAsIcon />
                       )
                     }
                     disabled={isDisabled}
                     onClick={() => void runList()}
                   >
-                    Run List
+                    Save List
                   </Button>
                 </Box>
                 <KeyWordTable

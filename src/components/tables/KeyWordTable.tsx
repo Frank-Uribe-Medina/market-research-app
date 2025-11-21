@@ -48,9 +48,9 @@ export default function KeyWordTable({
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>Keyword</TableCell>
+            <TableCell>Search Term</TableCell>
             <TableCell>Marketplaces</TableCell>
-            <TableCell>Results Per Word</TableCell>
+            <TableCell>Results Per Term</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>

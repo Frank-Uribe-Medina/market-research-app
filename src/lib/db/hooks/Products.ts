@@ -5,7 +5,7 @@ import { CACHE_KEY } from "../../../utils/cacheKeys"
 import { KeyWordActions } from "../actions/KeyWords"
 import { ProductActions } from "../actions/ProductHistory"
 
-export const useGetAllKeyWordLists = (userId = "", limit = 10) => {
+export const useGetAllProductHistory = (userId = "", limit = 10) => {
   const {
     data,
     isLoading,
@@ -17,9 +17,9 @@ export const useGetAllKeyWordLists = (userId = "", limit = 10) => {
     refetch,
   } = useInfiniteQuery({
     enabled: !!userId,
-    queryKey: [CACHE_KEY.getAllKeywords, limit],
+    queryKey: [CACHE_KEY.getAllProductHistory, limit],
     queryFn: async ({}: InfiniteParam) => {
-      return await KeyWordActions.GetAllKeyWords(userId, limit, null)
+      return await KeyWordActions.GetAllProductHistory(userId, limit, null)
     },
     initialPageParam: null,
     getPreviousPageParam: (firstPage) => firstPage.lastKey ?? undefined,
@@ -37,17 +37,21 @@ export const useGetAllKeyWordLists = (userId = "", limit = 10) => {
     refetch,
   }
 }
-export const useCombinedData = (userId = "", product_id = "", limit = 10) => {
-  return useQuery({
-    enabled: !!userId && !!product_id,
-    queryKey: ["combined-data", userId, product_id, limit],
-    queryFn: async () => {
-      const [productHistory, keywordLists] = await Promise.all([
-        ProductActions.GetProductHistory(userId, product_id),
-        KeyWordActions.GetAllKeyWords(userId, limit, null),
-      ])
 
-      return { productHistory, keywordLists }
+export const useGetProduct = (userId = "", product_id = "") => {
+  const { data, isLoading, isError, isFetched, refetch } = useQuery({
+    enabled: !!userId && !!product_id,
+    queryKey: [CACHE_KEY.getAllProductHistory, product_id],
+    queryFn: async () => {
+      return await ProductActions.GetProductHistory(userId, product_id)
     },
   })
+
+  return {
+    data,
+    isLoading,
+    isError,
+    isFetched,
+    refetch,
+  }
 }

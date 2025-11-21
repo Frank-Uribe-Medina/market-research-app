@@ -16,7 +16,10 @@ import {
   updateDoc,
 } from "firebase/firestore"
 
-import { KeywordShapeFirebase } from "../../../types/keyWordList.model"
+import {
+  KeywordShapeFirebase,
+  ProductHistory,
+} from "../../../types/keyWordList.model"
 import { LastKey } from "../../../types/params.model"
 import { firestore } from ".."
 
@@ -139,6 +142,49 @@ export const KeyWordActions = {
         error: true,
         message:
           typeof err === "string" ? err : "Unable to delete keyword from list.",
+      }
+    }
+  },
+  GetAllProductHistory: async (
+    userId: string,
+    limitNum: number,
+    lastKey: LastKey
+  ) => {
+    ///product_history/2MPYYIhjYBQdOEwICxgyXb08oPY2/products/GmFC5m4KUD4krc1RV699
+    try {
+      const constraints: QueryConstraint[] = []
+      if (lastKey) {
+        constraints.push(startAfter(lastKey.ref))
+      }
+      constraints.push(orderBy("lastScraped", "desc"), limit(limitNum))
+
+      const collectionRef = collection(
+        firestore,
+        `product_history/${userId}/products/`
+      )
+      const queryRef = query(collectionRef, ...constraints)
+      const docsRef = await getDocs(queryRef)
+
+      const temp: ProductHistory[] = []
+      docsRef.docs.forEach((doc) => {
+        const d = doc.data() as ProductHistory
+        console.log(d)
+        temp.push({
+          id: doc.id,
+          lastScraped: d.lastScraped,
+          product_history: d.product_history,
+        })
+      })
+      const lk = docsRef.docs.at(-1)
+      console.log(temp)
+      return { error: false, content: temp, lastKey: lk }
+    } catch (err: any) {
+      console.error(err)
+      return {
+        error: true,
+        content: [],
+        lastKey: null,
+        message: typeof err === "string" ? err : "Unable to get Keyword List.",
       }
     }
   },

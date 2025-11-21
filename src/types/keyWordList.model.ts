@@ -17,3 +17,17 @@ export interface KeywordShapeFirebase {
   createdAt: Timestamp
   product_history?: NoonProductSnapshot[]
 }
+
+export interface QueueShape {
+  id: string
+  userId: string
+  keyword: string
+  marketplaces: string[]
+  limitInput: number
+}
+
+export interface ProductHistory {
+  id: string
+  lastScraped: Date
+  product_history?: NoonProductSnapshot[]
+}
