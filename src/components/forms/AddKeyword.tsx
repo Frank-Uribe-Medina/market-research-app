@@ -106,16 +106,16 @@ export default function AddKeywordForm({
               <Box>
                 <Typography display={"flex"} gap={1}>
                   {" "}
-                  <Tooltip title="Which Marketplace do you want to search with this keyword.">
+                  <Tooltip title="Search Terms can be model numbers, serial numbers, or just plain phrases like 'Gift Ideas for Her'. Inputting phrases will return the top results of that search terms query on desired marketplace.">
                     <InfoOutlineIcon />
                   </Tooltip>
-                  Add Keyword
+                  Add Search Term
                 </Typography>
 
                 <TextField
                   {...field}
                   fullWidth
-                  placeholder="e.g. Makeup"
+                  placeholder="e.g. Makeup "
                   error={errors.keyword ? true : false}
                   helperText={errors.keyword?.message ?? ""}
                 />

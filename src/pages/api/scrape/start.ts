@@ -2,7 +2,7 @@ import { firestore } from "firebase-admin"
 import type { NextApiRequest, NextApiResponse } from "next"
 
 import { firebaseAdmin } from "../../../lib/db/admin"
-import { KeywordShapeFirebase } from "../../../types/keyWordList.model"
+import { QueueShape } from "../../../types/keyWordList.model"
 
 type Data = {
   error: boolean
@@ -33,12 +33,15 @@ export default async function handler(
     const snapshot = await adminDb
       .collection(`user_keywords/${userId}/keywords`)
       .get()
-    const data: KeywordShapeFirebase[] = snapshot.docs.map(
+    const data: QueueShape[] = snapshot.docs.map(
       (doc) =>
         ({
           id: doc.id,
-          ...doc.data(),
-        }) as KeywordShapeFirebase
+          userId: doc.data().userId ?? "",
+          keyword: doc.data().keyword ?? "",
+          marketplaces: doc.data().marketplaces,
+          limitInput: doc.data().limitInput,
+        }) as QueueShape
     )
     const scrapeQueueDocRef = adminDb.collection("scrape_queue").doc()
     const jobId = scrapeQueueDocRef.id

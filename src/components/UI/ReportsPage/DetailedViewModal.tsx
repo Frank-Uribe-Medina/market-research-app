@@ -1,4 +1,5 @@
 import AdsClickIcon from "@mui/icons-material/AdsClick"
+import OpenInNewIcon from "@mui/icons-material/OpenInNew"
 import {
   Backdrop,
   Box,
@@ -15,51 +16,37 @@ import {
   Typography,
 } from "@mui/material"
 import Fade from "@mui/material/Fade"
+import dayjs from "dayjs"
 import React from "react"
-import {
-  Bar,
-  BarChart,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts"
+import { toast } from "react-toastify"
+import { useSnapshot } from "valtio"
 
+import state from "../../../contexts/ValtioStore"
+import { ProductActions } from "../../../lib/db/actions/ProductHistory"
+import { ProductHistory } from "../../../types/keyWordList.model"
 import { NoonProductSnapshot } from "../../../types/marketplacedata.model"
+import { formatFirebaseDate } from "../../../utils"
+import PriceHistoryChart from "./PriceHistoryChart"
 
 type ViewMode = "table" | "priceDiscount"
 
 // Treat a single snapshot as one row of history.
 // Props expects an array of these.
 interface Props {
-  readonly product_history: NoonProductSnapshot[] | null
+  readonly product_id: string
   readonly disabled: boolean
 }
 
 // --------- helpers ---------
 
-const parseNumber = (value: string | undefined | null): number | null => {
-  if (!value) return null
-  const num = parseFloat(value.replace(/[^\d.]/g, ""))
-  return Number.isNaN(num) ? null : num
-}
-
-const parseDiscount = (priceSavingText?: string | null): number | null => {
-  if (!priceSavingText) return null
-  // eslint-disable-next-line sonarjs/slow-regex
-  const match = RegExp(/(\d+(?:\.\d+)?)\s*%/).exec(priceSavingText)
-  return match ? parseFloat(match[1]) : null
-}
-
 const useDerivedData = (history: NoonProductSnapshot[] | null) => {
   const rows = React.useMemo(() => {
     if (!history) return []
     return history.map((item, index) => {
-      const currentPrice = parseNumber(item.currentPrice as any)
-      const pastPrice = parseNumber(item.pastPrice as any)
+      const currentPrice = item.currentPrice
+      const pastPrice = item.pastPrice
       const discountPercent =
-        parseDiscount(item.priceSavingText as any) ??
+        item.priceSavingText ??
         (currentPrice && pastPrice
           ? (1 - currentPrice / pastPrice) * 100
           : null)
@@ -68,11 +55,12 @@ const useDerivedData = (history: NoonProductSnapshot[] | null) => {
         id: index,
         sku: item.sku ?? "",
         title: item.title ?? "",
+        url: item.url ?? "",
         marketplace: item.marketplace ?? "",
         currentPrice,
         pastPrice,
         discountPercent,
-        scrapedAt: item.scrapedAt ?? "",
+        scrapedAt: item.scrapedAt ?? dayjs().toDate(),
       }
     })
   }, [history])
@@ -82,7 +70,8 @@ const useDerivedData = (history: NoonProductSnapshot[] | null) => {
       rows.map((row) => ({
         name: row.sku || row.title.slice(0, 12),
         price: row.currentPrice,
-        discount: row.discountPercent,
+        scrapedAt:
+          dayjs.utc(formatFirebaseDate(row.scrapedAt)).valueOf() * 1000000,
       })),
     [rows]
   )
@@ -113,15 +102,35 @@ const modalStyle = {
     "radial-gradient(circle at 0 0, rgba(56,189,248,0.15), transparent 55%), radial-gradient(circle at 100% 100%, rgba(244,114,182,0.18), transparent 55%)",
 }
 
-export default function DetailedViewModal({
-  product_history,
-  disabled,
-}: Props) {
+export default function DetailedViewModal({ product_id, disabled }: Props) {
+  const snap = useSnapshot(state)
   const [open, setOpen] = React.useState(false)
   const [view, setView] = React.useState<ViewMode>("table")
+  const [product_history, setProductHistory] =
+    React.useState<ProductHistory | null>(null)
 
-  const { rows, priceDiscountData } = useDerivedData(product_history)
+  const getProductHistory = async (value: boolean) => {
+    setOpen(value)
+    try {
+      const result = await ProductActions.GetProductHistory(
+        snap.user?.id ?? "",
+        product_id
+      )
+      if (result.error || !result.content) {
+        return toast.error("No results for this Product Yet")
+      }
+      console.log(result.content)
+      setProductHistory(result.content ?? [])
+    } catch (err: any) {
+      console.error(err)
+      return toast.error("Failed to get this Product Data")
+    }
+  }
 
+  const { rows, priceDiscountData } = useDerivedData(
+    product_history?.product_history ?? []
+  )
+  console.log("Is this in the right format", priceDiscountData)
   const handleViewChange = (
     _e: React.MouseEvent<HTMLElement>,
     next: ViewMode | null
@@ -135,7 +144,7 @@ export default function DetailedViewModal({
   return (
     <>
       <IconButton
-        onClick={() => setOpen(true)}
+        onClick={() => void getProductHistory(true)}
         color="secondary"
         disabled={disabled}
       >
@@ -144,7 +153,7 @@ export default function DetailedViewModal({
 
       <Modal
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => void getProductHistory(false)}
         closeAfterTransition
         slots={{ backdrop: Backdrop }}
         slotProps={{ backdrop: { timeout: 200 } }}
@@ -181,8 +190,9 @@ export default function DetailedViewModal({
                       <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{ mt: 0.5 }}
-                        noWrap
+                        sx={{
+                          mt: 0.5,
+                        }}
                       >
                         {latest.title}
                       </Typography>
@@ -245,6 +255,7 @@ export default function DetailedViewModal({
                             <TableHead>
                               <TableRow>
                                 <TableCell>SKU</TableCell>
+                                <TableCell>URL</TableCell>
                                 <TableCell>Title</TableCell>
                                 <TableCell align="right">
                                   Current Price
@@ -258,25 +269,49 @@ export default function DetailedViewModal({
                               {rows.map((row) => (
                                 <TableRow key={row.id} hover>
                                   <TableCell>{row.sku}</TableCell>
-                                  <TableCell sx={{ maxWidth: 260 }}>
+
+                                  <TableCell
+                                    sx={{
+                                      maxWidth: 260,
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      maxHeight: 10,
+                                      textWrap: "nowrap",
+                                    }}
+                                  >
+                                    <IconButton
+                                      href={row.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <OpenInNewIcon />
+                                    </IconButton>
+                                  </TableCell>
+                                  <TableCell
+                                    sx={{
+                                      maxWidth: 260,
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                      maxHeight: 10,
+                                      textWrap: "nowrap",
+                                    }}
+                                  >
                                     {row.title}
                                   </TableCell>
                                   <TableCell align="right">
-                                    {row.currentPrice !== null
-                                      ? `EGP ${row.currentPrice.toFixed(2)}`
-                                      : "-"}
+                                    {`EGP ${row.currentPrice.toFixed(2)}`}
                                   </TableCell>
                                   <TableCell align="right">
-                                    {row.pastPrice !== null
-                                      ? `EGP ${row.pastPrice.toFixed(2)}`
-                                      : "-"}
+                                    {`EGP ${row.pastPrice.toFixed(2)}`}
                                   </TableCell>
                                   <TableCell align="right">
-                                    {row.discountPercent !== null
-                                      ? `${row.discountPercent.toFixed(1)}%`
-                                      : "-"}
+                                    {`${row.discountPercent.toFixed(1)}%`}
                                   </TableCell>
-                                  <TableCell>{row.scrapedAt}</TableCell>
+                                  <TableCell>
+                                    {dayjs(
+                                      formatFirebaseDate(row.scrapedAt)
+                                    ).format("MM/DD/YY")}
+                                  </TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>
@@ -285,16 +320,7 @@ export default function DetailedViewModal({
                       )}
 
                       {view === "priceDiscount" && (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={priceDiscountData}>
-                            <XAxis dataKey="name" />
-                            <YAxis />
-                            <Tooltip />
-                            <Legend />
-                            <Bar dataKey="price" name="Price (EGP)" />
-                            <Bar dataKey="discount" name="Discount (%)" />
-                          </BarChart>
-                        </ResponsiveContainer>
+                        <PriceHistoryChart price_history={priceDiscountData} />
                       )}
                     </>
                   )}

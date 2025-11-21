@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Container, Typography } from "@mui/material"
+import { Box, CircularProgress, Container } from "@mui/material"
 import { AuthAction, withUser, withUserTokenSSR } from "next-firebase-auth"
 import React from "react"
 import { useSnapshot } from "valtio"
@@ -23,25 +23,20 @@ export const getServerSideProps = withUserTokenSSR({
 
 function ReportsPage() {
   const snap = useSnapshot(state)
-  const kw_from_db = useGetAllKeyWordLists(snap.user?.id)
+  const keyword_pages = useGetAllKeyWordLists(snap.user?.id)
 
   return (
-    <Container sx={{ height: "86vh" }}>
+    <Container sx={{ height: "content-fit" }}>
       <Box sx={{ px: 3, py: 4 }}>
-        <Box>
-          <Typography variant="h5" fontWeight="bold">
-            Reports Table
-          </Typography>
-          {kw_from_db.isLoading ? (
-            <>
-              <CircularProgress size={50} />
-            </>
-          ) : (
-            <SnapshotsTable
-              keywords_list={kw_from_db.data?.pages[0].content ?? []}
-            />
-          )}
-        </Box>
+        {keyword_pages.isLoading ? (
+          <>
+            <CircularProgress size={50} />
+          </>
+        ) : (
+          <SnapshotsTable
+            keywords_list={keyword_pages.data?.pages[0].content ?? []}
+          />
+        )}
       </Box>
     </Container>
   )
