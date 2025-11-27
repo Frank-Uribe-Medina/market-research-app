@@ -40,8 +40,6 @@ export const KeyWordActions = {
     )
     const snap = await getCountFromServer(collectionRef)
     const key_word_count = snap.data().count
-    console.log("Now the count is ", key_word_count)
-    console.log("sub plan is ", subPlan)
     if (subPlan === "free" && key_word_count >= 10) {
       return {
         error: true,
@@ -153,7 +151,6 @@ export const KeyWordActions = {
   DeleteKeyWord: async (userId: string, keywordId: string) => {
     //         `user_keywords/${userId}/keywords/${keywordId}`
     try {
-      console.log("In catch statement")
       const docRef = doc(
         firestore,
         `user_keywords/${userId}/keywords/${keywordId}`
@@ -199,7 +196,6 @@ export const KeyWordActions = {
       const temp: ProductHistory[] = []
       docsRef.docs.forEach((doc) => {
         const d = doc.data() as ProductHistory
-        console.log(d)
         temp.push({
           id: doc.id,
           lastScraped: d.lastScraped,
@@ -207,7 +203,6 @@ export const KeyWordActions = {
         })
       })
       const lk = docsRef.docs.at(-1)
-      console.log(temp)
       return { error: false, content: temp, lastKey: lk }
     } catch (err: any) {
       console.error(err)

@@ -119,7 +119,6 @@ export default function DetailedViewModal({ product_id, disabled }: Props) {
       if (result.error || !result.content) {
         return toast.error("No results for this Product Yet")
       }
-      console.log(result.content)
       setProductHistory(result.content ?? [])
     } catch (err: any) {
       console.error(err)
@@ -130,7 +129,6 @@ export default function DetailedViewModal({ product_id, disabled }: Props) {
   const { rows, priceDiscountData } = useDerivedData(
     product_history?.product_history ?? []
   )
-  console.log("Is this in the right format", priceDiscountData)
   const handleViewChange = (
     _e: React.MouseEvent<HTMLElement>,
     next: ViewMode | null
