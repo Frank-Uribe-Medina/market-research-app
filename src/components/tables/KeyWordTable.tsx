@@ -19,13 +19,15 @@ interface Props {
   readonly keywords: KeywordShapeFirebase[] | null
   readonly isDisabled: boolean
   readonly setIsDisabled: (value: boolean) => void
-  readonly triggerRefetch: (value: any) => any
+  readonly refetchKeywords: (value: boolean) => any
+  readonly refetching: boolean
 }
 
 export default function KeyWordTable({
   userId,
   keywords,
-  triggerRefetch,
+  refetchKeywords,
+  refetching,
   isDisabled,
   setIsDisabled,
 }: Props) {
@@ -38,9 +40,9 @@ export default function KeyWordTable({
     if (!result.message) {
       toast.error(result?.message ?? "")
     }
-    triggerRefetch([])
     setIsDisabled(false)
     toast.success("Successfully deleted keyword.")
+    refetchKeywords(!refetching)
   }
 
   return (
@@ -51,6 +53,8 @@ export default function KeyWordTable({
             <TableCell>Search Term</TableCell>
             <TableCell>Marketplaces</TableCell>
             <TableCell>Results Per Term</TableCell>
+            <TableCell>Broad Search?</TableCell>
+
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -77,6 +81,18 @@ export default function KeyWordTable({
                 </TableCell>
                 <TableCell component="th" scope="row">
                   {isDisabled ? <Skeleton /> : (keyword.limitInput ?? 2)}
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  {isDisabled ? (
+                    <Skeleton />
+                  ) : (
+                    <Chip
+                      label={String(keyword.isSpecificProduct ?? "True")}
+                      variant={
+                        keyword.isSpecificProduct ? "filled" : "outlined"
+                      }
+                    />
+                  )}
                 </TableCell>
                 <TableCell component="th" scope="row">
                   <Chip

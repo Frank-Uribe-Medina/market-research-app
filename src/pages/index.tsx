@@ -1,18 +1,23 @@
 import InfoOutlineIcon from "@mui/icons-material/InfoOutline"
+import RestartAltIcon from "@mui/icons-material/RestartAlt"
 import SaveAsIcon from "@mui/icons-material/SaveAs"
 import {
   Box,
   Button,
   CircularProgress,
   Container,
+  FormControl,
   Grid,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   Tooltip,
   Typography,
 } from "@mui/material"
 import axios from "axios"
 import { AuthAction, withUser, withUserTokenSSR } from "next-firebase-auth"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { toast } from "react-toastify"
 import { useDebouncedCallback } from "use-debounce"
 import { useSnapshot } from "valtio"
@@ -22,23 +27,28 @@ import TrendingCategories from "../components/QuantitySelect"
 import Seo from "../components/Seo"
 import KeyWordTable from "../components/tables/KeyWordTable"
 import state from "../contexts/ValtioStore"
-import { useGetAllKeyWordLists } from "../lib/db/hooks/KeyWords"
+import { useGetAllKeyWords } from "../lib/db/hooks/KeyWords"
 import { AxiosScrapeStartResponse } from "../types/axios.model"
-import { KeywordShapeFirebase } from "../types/keyWordList.model"
+import { User } from "../types/user.model"
 
+interface SSRProps {
+  readonly userData: User
+}
 export const getServerSideProps = withUserTokenSSR({
   whenUnauthed: AuthAction.REDIRECT_TO_LOGIN,
 })(async (ctx) => {
-  console.log(ctx.user?.claims)
+  console.log("Whats in here?", ctx.user?.claims)
   return {
-    props: {},
+    props: { userData: JSON.stringify(ctx.user) },
   }
 })
 
-function HomePage() {
+function Dashboard({ userData }: SSRProps) {
+  console.log(userData)
   const snap = useSnapshot(state)
-  const [keywords, addKeyword] = React.useState<KeywordShapeFirebase[]>([])
-  const { data: AllKeywords, refetch: refetchKeywords } = useGetAllKeyWordLists(
+  const subPlan = userData.subplan ?? "free"
+  const [refetching, setRefetching] = useState(false)
+  const { data: AllKeywords, refetch: refetchKeywords } = useGetAllKeyWords(
     snap.user?.id,
     10
   )
@@ -46,18 +56,13 @@ function HomePage() {
   const [isDisabled, setIsDisabled] = React.useState(false)
 
   useEffect(() => {
-    console.log(snap.user)
-  }, [snap.user])
-
-  useEffect(() => {
-    const timerId = setTimeout(() => {
-      refetchKeywords()
-    }, 1000)
-
-    return () => {
-      clearTimeout(timerId)
+    const getFreshList = async () => {
+      console.log("We are refetching the keywords")
+      await refetchKeywords()
     }
-  }, [keywords, refetchKeywords])
+    getFreshList()
+  }, [refetching, refetchKeywords])
+
   const runList = useDebouncedCallback(async () => {
     console.log("CLICKED THE BUTTON TO RUN LIST")
     try {
@@ -118,7 +123,10 @@ function HomePage() {
             <Grid size={6}>
               <Paper elevation={2} sx={{ p: 4 }}>
                 <AddKeywordForm
-                  addKeyword={addKeyword}
+                  subPlan={subPlan}
+                  count={AllKeywords?.pages[0].count}
+                  refetchKeywords={setRefetching}
+                  refetching={refetching}
                   isDisabled={isDisabled}
                   setIsDisabled={setIsDisabled}
                 />
@@ -141,6 +149,7 @@ function HomePage() {
                   justifyContent={"center"}
                   alignItems={"center"}
                   gap={1}
+                  color="textDisabled "
                 >
                   <Tooltip title="WORK IN PROGRESS. See the Trending categories for each available marketplace. ">
                     <InfoOutlineIcon fontSize={"small"} />
@@ -165,30 +174,66 @@ function HomePage() {
                     gap={1}
                     alignItems={"center"}
                   >
-                    <Tooltip title="See the Trending categories for each available marketplace. ">
+                    <Tooltip title="These are the terms that will be scraped ">
                       <InfoOutlineIcon fontSize={"small"} />
                     </Tooltip>
                     Your Search Terms
                   </Typography>
-                  <Button
-                    variant="outlined"
-                    startIcon={
-                      isDisabled ? (
-                        <CircularProgress size={10} />
-                      ) : (
-                        <SaveAsIcon />
-                      )
-                    }
-                    disabled={isDisabled}
-                    onClick={() => void runList()}
+                  <Box
+                    display={"flex"}
+                    flexDirection={"row"}
+                    justifyContent={"center"}
+                    alignItems={"center"}
+                    gap={2}
                   >
-                    Save List
-                  </Button>
+                    <Tooltip title="Free accounts cannot run scraping jobs in intervals. Please Upgrade if you want to run these jobs on a schedule. ">
+                      <InfoOutlineIcon fontSize={"small"} />
+                    </Tooltip>
+                    <FormControl sx={{ minWidth: 200 }}>
+                      <InputLabel id="check-every">Run on Every...</InputLabel>
+                      <Select
+                        labelId="check-every"
+                        id="check-every-select"
+                        aria-placeholder="tst"
+                      >
+                        <MenuItem value={60} disabled={subPlan === "free"}>
+                          Hour
+                        </MenuItem>
+                        <MenuItem value={360} disabled={subPlan === "free"}>
+                          6 Hours
+                        </MenuItem>
+                        <MenuItem value={1440} disabled={subPlan === "free"}>
+                          24 Hours
+                        </MenuItem>
+                        <MenuItem value={2160} disabled={subPlan === "free"}>
+                          36 Hours
+                        </MenuItem>
+                        <MenuItem value={4320} disabled={subPlan === "free"}>
+                          72 Hours
+                        </MenuItem>
+                        <MenuItem value={43200} disabled={subPlan === "free"}>
+                          Month
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                    <Button
+                      variant="outlined"
+                      startIcon={
+                        subPlan === "free" ? <RestartAltIcon /> : <SaveAsIcon />
+                      }
+                      disabled={isDisabled}
+                      onClick={() => void runList()}
+                      sx={{ minWidth: 200, height: "100%" }}
+                    >
+                      {subPlan === "free" ? "Run Now" : "Save List"}
+                    </Button>
+                  </Box>
                 </Box>
                 <KeyWordTable
                   userId={snap.user.id}
                   keywords={AllKeywords?.pages[0].content ?? null}
-                  triggerRefetch={addKeyword}
+                  refetchKeywords={setRefetching}
+                  refetching={refetching}
                   isDisabled={isDisabled}
                   setIsDisabled={setIsDisabled}
                 />
@@ -201,4 +246,4 @@ function HomePage() {
   )
 }
 
-export default withUser()(HomePage)
+export default withUser<SSRProps>()(Dashboard)

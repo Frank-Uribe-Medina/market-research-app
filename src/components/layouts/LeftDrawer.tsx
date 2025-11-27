@@ -3,6 +3,7 @@ import FolderSpecialIcon from "@mui/icons-material/FolderSpecial"
 import HelpIcon from "@mui/icons-material/Help"
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye"
 import SettingsIcon from "@mui/icons-material/Settings"
+import { Tooltip } from "@mui/material"
 import Box from "@mui/material/Box"
 import CssBaseline from "@mui/material/CssBaseline"
 import Divider from "@mui/material/Divider"
@@ -78,14 +79,16 @@ export default function PermanentDrawerLeft() {
               <ListItemText primary={"Reports"} />
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton href="/watchlist">
-              <ListItemIcon>
-                <RemoveRedEyeIcon />
-              </ListItemIcon>
-              <ListItemText primary={"Watchlist"} />
-            </ListItemButton>
-          </ListItem>
+          <Tooltip title="Only Accessible for Pro Memebers">
+            <ListItem disablePadding>
+              <ListItemButton href="/analysis" disabled>
+                <ListItemIcon>
+                  <RemoveRedEyeIcon />
+                </ListItemIcon>
+                <ListItemText primary={"Market Analysis"} />
+              </ListItemButton>
+            </ListItem>
+          </Tooltip>
           <ListItem disablePadding>
             <ListItemButton href="/settings">
               <ListItemIcon>

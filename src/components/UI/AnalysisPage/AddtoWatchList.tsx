@@ -14,11 +14,11 @@ import { toast } from "react-toastify"
 import { useDebouncedCallback } from "use-debounce"
 import { useSnapshot } from "valtio"
 
-import state from "../../contexts/ValtioStore"
-import { KeyWordActions } from "../../lib/db/actions/KeyWords"
-import { User } from "../../types/user.model"
-import MarketPlaces from "../Marketplaces"
-import { AddKeywordSchema } from "./schemas/AddKeywordSchema"
+import state from "../../../contexts/ValtioStore"
+import { KeyWordActions } from "../../../lib/db/actions/KeyWords"
+import { User } from "../../../types/user.model"
+import { AddKeywordSchema } from "../../forms/schemas/AddKeywordSchema"
+import MarketPlaces from "../../Marketplaces"
 
 type FormValues = {
   keyword: string
@@ -36,7 +36,7 @@ interface Props {
   readonly refetching: boolean
 }
 
-export default function AddKeywordForm({
+export default function AddtoWatchList({
   setIsDisabled,
   subPlan,
   count,

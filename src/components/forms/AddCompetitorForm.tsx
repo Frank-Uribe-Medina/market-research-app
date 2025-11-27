@@ -3,7 +3,6 @@ import InfoOutlineIcon from "@mui/icons-material/InfoOutline"
 import {
   Box,
   Button,
-  Slider,
   Switch,
   TextField,
   Tooltip,
@@ -11,21 +10,10 @@ import {
 } from "@mui/material"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "react-toastify"
-import { useDebouncedCallback } from "use-debounce"
-import { useSnapshot } from "valtio"
 
-import state from "../../contexts/ValtioStore"
-import { KeyWordActions } from "../../lib/db/actions/KeyWords"
 import { User } from "../../types/user.model"
 import MarketPlaces from "../Marketplaces"
-import { AddKeywordSchema } from "./schemas/AddKeywordSchema"
-
-type FormValues = {
-  keyword: string
-  marketplaces: string[]
-  limitInput: number
-  isSpecificProduct: boolean
-}
+import { AddCompetitorSchema } from "./schemas/AddCompetitorSchema"
 
 interface Props {
   readonly isDisabled: boolean
@@ -36,59 +24,55 @@ interface Props {
   readonly refetching: boolean
 }
 
-export default function AddKeywordForm({
+export default function AddCompetitorForm({
   setIsDisabled,
   subPlan,
   count,
   isDisabled,
-  refetchKeywords,
-  refetching,
 }: Props) {
-  const snap = useSnapshot(state)
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm({
-    resolver: yupResolver(AddKeywordSchema),
+    resolver: yupResolver(AddCompetitorSchema),
     defaultValues: {
-      keyword: "",
-      marketplaces: ["Noon"],
-      limitInput: 2,
-      isSpecificProduct: true,
+      competitor_url: "",
+      marketplaces: [],
+      find_similar: false,
     },
   })
 
   const onSubmit = async (data: any) => {
     try {
+      console.log(data)
       setIsDisabled(true)
-      await addingKeyword(data)
+      // await addingKeyword(data)
       setIsDisabled(false)
     } catch (err: any) {
       toast.error(err)
     }
   }
-  const addingKeyword = useDebouncedCallback(async (data: FormValues) => {
-    try {
-      const target = data
+  // const addingKeyword = useDebouncedCallback(async (data: FormValues) => {
+  //   try {
+  //     const target = data
 
-      const result = await KeyWordActions.AddKeyWord(
-        snap.user?.id ?? "",
-        target.keyword,
-        target.marketplaces ?? ["noon"],
-        target.limitInput,
-        target.isSpecificProduct,
-        subPlan
-      )
-      if (result.error) {
-        throw result.message
-      }
-      toast.success("Successfully Added Keyword.")
-      refetchKeywords(!refetching)
-    } catch (err: any) {
-      toast.error(typeof err === "string" ? err : "Unable to Add Keyword")
-    }
-  }, 500)
+  //     const result = await KeyWordActions.AddKeyWord(
+  //       snap.user?.id ?? "",
+  //       target.competitor_url,
+  //       target.marketplaces ?? ["noon"],
+
+  //       subPlan
+  //     )
+  //     if (result.error) {
+  //       throw result.message
+  //     }
+  //     toast.success("Successfully Added Keyword.")
+  //     refetchKeywords(!refetching)
+  //   } catch (err: any) {
+  //     toast.error(typeof err === "string" ? err : "Unable to Add Keyword")
+  //   }
+  // }, 500)
 
   const onError = (errors: any) => {
     toast.error(errors)
@@ -107,7 +91,7 @@ export default function AddKeywordForm({
           }}
         >
           <Controller
-            name="keyword"
+            name="competitor_url"
             control={control}
             render={({ field }) => (
               <Box>
@@ -123,8 +107,8 @@ export default function AddKeywordForm({
                   {...field}
                   fullWidth
                   placeholder="e.g. Makeup "
-                  error={errors.keyword ? true : false}
-                  helperText={errors.keyword?.message ?? ""}
+                  // error={errors.keyword ? true : false}
+                  // helperText={errors.keyword?.message ?? ""}
                 />
               </Box>
             )}
@@ -155,7 +139,7 @@ export default function AddKeywordForm({
               )}
             />
             <Controller
-              name="isSpecificProduct"
+              name="marketplaces"
               control={control}
               render={({ field }) => (
                 <Box>
@@ -182,31 +166,7 @@ export default function AddKeywordForm({
             />
           </Box>
         </Box>
-        <Controller
-          name="limitInput"
-          control={control}
-          render={({ field }) => (
-            <>
-              <Typography display={"flex"} gap={1}>
-                <Tooltip title="This is how many results you want returned to you based on the order of items on the page. E.g When you search Headphones and you only want the top 5 Results .">
-                  <InfoOutlineIcon />
-                </Tooltip>
-                Top: <span style={{ fontWeight: 700 }}>{field.value}</span>
-                Results
-              </Typography>
-              <Slider
-                value={field.value}
-                min={2}
-                step={1}
-                max={10}
-                onChange={field.onChange}
-                valueLabelDisplay="auto"
-                aria-labelledby="non-linear-slider"
-                marks
-              />
-            </>
-          )}
-        />
+
         <Typography>
           Term Limit {count ?? 0} / {subPlan === "free" ? 10 : null}{" "}
           {subPlan === "pro" ? 50 : null} {subPlan === "business" ? 300 : null}

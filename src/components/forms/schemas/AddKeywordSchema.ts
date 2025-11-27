@@ -7,6 +7,7 @@ export const AddKeywordSchema = yup
       .array(yup.string().required())
       .min(1, "Select at least one marketplace"),
     limitInput: yup.number().required(),
+    isSpecificProduct: yup.bool().required(),
   })
   .required()
 export type FormValues = yup.InferType<typeof AddKeywordSchema>

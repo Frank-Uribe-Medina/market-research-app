@@ -4,6 +4,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getCountFromServer,
   getDoc,
   getDocs,
   limit,
@@ -21,6 +22,7 @@ import {
   ProductHistory,
 } from "../../../types/keyWordList.model"
 import { LastKey } from "../../../types/params.model"
+import { User } from "../../../types/user.model"
 import { firestore } from ".."
 
 export const KeyWordActions = {
@@ -28,14 +30,40 @@ export const KeyWordActions = {
     userId: string,
     keyword: string,
     marketplaces: string[],
-    limitInput: number
+    limitInput: number,
+    isSpecificProduct: boolean,
+    subPlan: User["subplan"]
   ) => {
     const collectionRef = collection(
       firestore,
       `user_keywords/${userId}/keywords`
     )
+    const snap = await getCountFromServer(collectionRef)
+    const key_word_count = snap.data().count
+    console.log("Now the count is ", key_word_count)
+    console.log("sub plan is ", subPlan)
+    if (subPlan === "free" && key_word_count >= 10) {
+      return {
+        error: true,
+        message: "Reached the Max Limit of Keywords.",
+        count: key_word_count,
+      }
+    }
+    if (subPlan === "pro" && key_word_count >= 50) {
+      return {
+        error: true,
+        message: "Reached the Max Limit of Keywords.",
+        count: key_word_count,
+      }
+    }
+    if (subPlan === "business" && key_word_count >= 300) {
+      return {
+        error: true,
+        message: "Reached the Max Limit of Keywords.",
+        count: key_word_count,
+      }
+    }
     const docRef = doc(collectionRef)
-
     await setDoc(
       docRef,
 
@@ -45,6 +73,7 @@ export const KeyWordActions = {
         keyword: keyword,
         marketplaces: marketplaces,
         limitInput: limitInput,
+        isSpecificProduct: isSpecificProduct,
         createdAt: Timestamp.fromDate(dayjs().toDate()),
       },
       { merge: true }
@@ -52,7 +81,8 @@ export const KeyWordActions = {
     return {
       error: false,
       content: docRef.id,
-      message: "Successfully Created Keyword List.",
+      count: key_word_count,
+      message: "Successfully Added Search Term.",
     }
   },
   GetAllKeyWords: async (
@@ -71,6 +101,7 @@ export const KeyWordActions = {
         firestore,
         `user_keywords/${userId}/keywords/`
       )
+      const count = (await getCountFromServer(collectionRef)).data().count
       const queryRef = query(collectionRef, ...constraints)
       const docsRef = await getDocs(queryRef)
 
@@ -83,12 +114,12 @@ export const KeyWordActions = {
           keyword: d.keyword,
           marketplaces: d.marketplaces,
           limitInput: d.limitInput,
-          product_history: d.product_history,
+          isSpecificProduct: d.isSpecificProduct,
           createdAt: d.createdAt,
         })
       })
       const lk = docsRef.docs.at(-1)
-      return { error: false, content: temp, lastKey: lk }
+      return { error: false, content: temp, lastKey: lk, count: count }
     } catch (err: any) {
       console.error(err)
       return {

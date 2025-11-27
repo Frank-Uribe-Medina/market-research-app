@@ -1,17 +1,33 @@
-import { Box, Typography } from "@mui/material"
+import GoogleIcon from "@mui/icons-material/Google"
+import { Box, Button, Link, Typography } from "@mui/material"
+import { signInWithPopup } from "firebase/auth"
+// import { getAuth, signInWithRedirect } from "firebase/auth"
 import Image from "next/image"
 import { AuthAction, withUser } from "next-firebase-auth"
 import { ReactElement } from "react"
 
 import ErrorBoundary from "../components/ErrorBoundary"
-import RegistrationForm from "../components/forms/Registration"
 import FullScreenLoader from "../components/FullScreenLoader"
 import NoHeaderFooterLayout from "../components/layouts/NoHeaderFooterLayout"
-import Link from "../components/Link"
 import Seo from "../components/Seo"
+import { auth, googleProvider } from "../lib/db"
+import { UserActions } from "../lib/db/actions/UserActions"
 import { BLUR_DATA_URL } from "../utils"
 
 function SignUpPage() {
+  const siwg = async () => {
+    try {
+      const token = await signInWithPopup(auth, googleProvider)
+      console.log(token.user)
+      const result = await UserActions.Create(token)
+
+      console.log(token)
+      console.log(result)
+    } catch (err: any) {
+      console.error(err)
+    }
+  }
+
   return (
     <>
       <Seo title="Sign Up" />
@@ -29,22 +45,30 @@ function SignUpPage() {
           blurDataURL={BLUR_DATA_URL}
         />
       </Box>
-      <Typography
-        align="center"
-        variant="h5"
-        component="h1"
-        className="text-xl"
-        mb={2}
+      <Box
+        display={"flex"}
+        flexDirection={"column"}
+        alignItems={"center"}
+        justifyContent={"center"}
       >
-        Create an Account
-      </Typography>
-      <ErrorBoundary>
-        <RegistrationForm />
-      </ErrorBoundary>
-      <Box sx={{ mt: 2 }}>
-        <Link href="/login">
-          <Typography align="center">Already have an account?</Typography>
-        </Link>
+        <Typography variant="h5" component="h1" className="text-xl" mb={2}>
+          Create an Account
+        </Typography>
+        <ErrorBoundary>
+          {/* <RegistrationForm /> */}
+          <Button
+            startIcon={<GoogleIcon />}
+            variant="contained"
+            onClick={() => void siwg()}
+          >
+            Sign in with Google
+          </Button>
+        </ErrorBoundary>
+        <Box sx={{ mt: 2 }}>
+          <Link href="/login">
+            <Typography align="center">Already have an account?</Typography>
+          </Link>
+        </Box>
       </Box>
     </>
   )

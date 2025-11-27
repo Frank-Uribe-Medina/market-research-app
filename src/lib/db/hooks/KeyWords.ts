@@ -5,7 +5,7 @@ import { CACHE_KEY } from "../../../utils/cacheKeys"
 import { KeyWordActions } from "../actions/KeyWords"
 import { ProductActions } from "../actions/ProductHistory"
 
-export const useGetAllKeyWordLists = (userId = "", limit = 10) => {
+export const useGetAllKeyWords = (userId = "", limit = 10) => {
   const {
     data,
     isLoading,
