@@ -11,8 +11,7 @@ import { User } from "../../types/user.model"
 import { UpdateAccountSchema } from "./schemas/UpdateAccountSchema"
 
 type FormValues = {
-  firstName: string
-  lastName: string
+  name: string
   phone: string
 }
 
@@ -29,8 +28,7 @@ export default function UpdateAccount({ user }: Props) {
   } = useForm({
     resolver: yupResolver(UpdateAccountSchema),
     defaultValues: {
-      firstName: user.firstName,
-      lastName: user.lastName,
+      name: user.name,
       phone: user.phone,
     },
   })
@@ -40,8 +38,7 @@ export default function UpdateAccount({ user }: Props) {
       setIsDisabled(true)
       const target = data as FormValues
       const result = await UserActions.Update(user.id, {
-        firstName: target.firstName,
-        lastName: target.lastName,
+        firstName: target.name,
         phone: target.phone,
       })
       if (result.error) {
@@ -68,7 +65,7 @@ export default function UpdateAccount({ user }: Props) {
           }}
         >
           <Controller
-            name="firstName"
+            name="name"
             control={control}
             render={({ field }) => (
               <TextField
@@ -76,22 +73,8 @@ export default function UpdateAccount({ user }: Props) {
                 fullWidth
                 label="First Name"
                 placeholder="First Name"
-                error={errors.firstName ? true : false}
-                helperText={errors.firstName?.message ?? ""}
-              />
-            )}
-          />
-          <Controller
-            name="lastName"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                fullWidth
-                label="Last Name"
-                placeholder="Last Name"
-                error={errors.lastName ? true : false}
-                helperText={errors.lastName?.message ?? ""}
+                error={errors.name ? true : false}
+                helperText={errors.name?.message ?? ""}
               />
             )}
           />

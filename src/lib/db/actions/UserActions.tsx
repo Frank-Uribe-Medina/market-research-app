@@ -1,4 +1,5 @@
 import axios from "axios"
+import { UserCredential } from "firebase/auth"
 import {
   collection,
   doc,
@@ -19,15 +20,9 @@ import { DEFAULT_ERROR } from "../../../utils/constants"
 import { firestore } from ".."
 
 export const UserActions = {
-  Create: async (data: {
-    firstName: string
-    lastName: string
-    phone: string
-    email: string
-    password: string
-  }) => {
+  Create: async (UserCred?: UserCredential) => {
     try {
-      await axios.post("/api/user/create", data)
+      await axios.post("/api/user/create", { userCred: UserCred })
       return { error: false, message: "Successfully created an account." }
     } catch (err: any) {
       if (axios.isAxiosError(err) && err.response) {

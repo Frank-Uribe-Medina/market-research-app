@@ -14,7 +14,6 @@ import {
   Tooltip,
   useTheme,
 } from "@mui/material"
-import dayjs from "dayjs"
 import * as React from "react"
 import { useSnapshot } from "valtio"
 
@@ -158,11 +157,7 @@ export default function SnapshotsTable({ keywords_list }: Props) {
             >
               <TableCell>{keyword.keyword}</TableCell>
               <TableCell>{keyword.marketplaces}</TableCell>
-              <TableCell>
-                {keyword.product_history
-                  ? formatFirebaseDate(keyword.product_history[0].scrapedAt)
-                  : dayjs().format("MM/DD/YYYY")}
-              </TableCell>
+              <TableCell>{keyword.isSpecificProduct ? "Yes" : "No"}</TableCell>
               <TableCell>
                 <DetailedViewModal
                   product_id={keyword.id}

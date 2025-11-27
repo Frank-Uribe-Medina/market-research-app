@@ -5,28 +5,31 @@ import { useSnapshot } from "valtio"
 
 import SnapshotsTable from "../components/tables/SnapShotsTable"
 import state from "../contexts/ValtioStore"
-import { useGetAllKeyWordLists } from "../lib/db/hooks/KeyWords"
-import { BucketsShape } from "../types/snapshots.model"
+import { useGetAllKeyWords } from "../lib/db/hooks/KeyWords"
+import { User } from "../types/user.model"
 
 interface ReportsPageProps {
-  readonly initial_data: BucketsShape[]
+  readonly userData: User
 }
 
 export const getServerSideProps = withUserTokenSSR({
   whenUnauthed: AuthAction.REDIRECT_TO_LOGIN,
 })(async (ctx) => {
-  console.log(ctx)
+  const user = JSON.stringify(ctx.user)
   return {
-    props: {},
+    props: {
+      userData: user,
+    },
   }
 })
 
-function ReportsPage() {
+function ReportsPage({ userData }: ReportsPageProps) {
+  console.log(userData)
   const snap = useSnapshot(state)
-  const keyword_pages = useGetAllKeyWordLists(snap.user?.id)
+  const keyword_pages = useGetAllKeyWords(snap.user?.id)
 
   return (
-    <Container sx={{ height: "content-fit" }}>
+    <Container sx={{ minHeight: "86vh" }}>
       <Box sx={{ px: 3, py: 4 }}>
         {keyword_pages.isLoading ? (
           <>

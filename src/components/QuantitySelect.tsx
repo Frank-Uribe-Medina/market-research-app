@@ -1,19 +1,23 @@
-import Box from "@mui/material/Box"
-import * as React from "react"
-
-import MarketPlaces from "./Marketplaces"
+import { Box, FormControlLabel, FormGroup } from "@mui/material"
+import Checkbox from "@mui/material/Checkbox"
 
 export default function TrendingCategories() {
-  const [selectedMarketPlaces, setSelectedMarketPlaces] = React.useState<
-    string[]
-  >([])
-
   return (
-    <Box sx={{ minWidth: 120 }}>
-      <MarketPlaces
-        selectedStores={selectedMarketPlaces}
-        setSelectedStores={setSelectedMarketPlaces}
-      />
+    <Box>
+      <FormGroup>
+        <Box display={"flex"} flexWrap={"wrap"}>
+          {["Noon", "Amazong.eg", "Google", "Tiktok Shop", "Shopify"].map(
+            (store) => {
+              return (
+                <FormControlLabel
+                  control={<Checkbox name={store} disabled />}
+                  label={store}
+                />
+              )
+            }
+          )}
+        </Box>
+      </FormGroup>
     </Box>
   )
 }

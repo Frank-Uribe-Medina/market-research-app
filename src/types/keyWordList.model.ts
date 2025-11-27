@@ -15,7 +15,7 @@ export interface KeywordShapeFirebase {
   marketplaces: string[]
   limitInput: number
   createdAt: Timestamp
-  product_history?: NoonProductSnapshot[]
+  isSpecificProduct: boolean
 }
 
 export interface QueueShape {

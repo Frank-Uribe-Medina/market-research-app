@@ -1,5 +1,6 @@
 import { Analytics, getAnalytics } from "firebase/analytics"
 import { getApps, initializeApp } from "firebase/app"
+import { getAuth, GoogleAuthProvider } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
 
 const firebaseConfig = {
@@ -25,4 +26,6 @@ if (
 
 const firestore = getFirestore(firebase)
 
+export const auth = getAuth(firebase)
+export const googleProvider = new GoogleAuthProvider()
 export { firebase, firebaseAnalytics, firestore }

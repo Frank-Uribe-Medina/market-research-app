@@ -4,8 +4,7 @@ const phoneRegExp = /^\d{3}-\d{3}-\d{4}$/
 
 export const RegistrationSchema = yup
   .object({
-    firstName: yup.string().trim().required("Please enter your first name."),
-    lastName: yup.string().trim().required("Please enter your last name."),
+    name: yup.string().trim().required("Please enter your full name."),
     phone: yup
       .string()
       .trim()
