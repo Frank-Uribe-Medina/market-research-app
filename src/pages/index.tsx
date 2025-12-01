@@ -37,14 +37,12 @@ interface SSRProps {
 export const getServerSideProps = withUserTokenSSR({
   whenUnauthed: AuthAction.REDIRECT_TO_LOGIN,
 })(async (ctx) => {
-  console.log("Whats in here?", ctx.user?.claims)
   return {
     props: { userData: JSON.stringify(ctx.user) },
   }
 })
 
 function Dashboard({ userData }: SSRProps) {
-  console.log(userData)
   const snap = useSnapshot(state)
   const subPlan = userData.subplan ?? "free"
   const [refetching, setRefetching] = useState(false)
@@ -57,14 +55,12 @@ function Dashboard({ userData }: SSRProps) {
 
   useEffect(() => {
     const getFreshList = async () => {
-      console.log("We are refetching the keywords")
       await refetchKeywords()
     }
     getFreshList()
   }, [refetching, refetchKeywords])
 
   const runList = useDebouncedCallback(async () => {
-    console.log("CLICKED THE BUTTON TO RUN LIST")
     try {
       const response = await axios.post<AxiosScrapeStartResponse>(
         `/api/scrape/start`,

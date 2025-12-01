@@ -58,7 +58,6 @@ export default function WatchListTable({
   const handleDelete = async (id: string): Promise<void> => {
     handleDeleteClose()
     const result = await WatchListActions.DeleteProduct(userId, id)
-    console.log(result)
     if (result.error) {
       toast.error(result.message)
     }
@@ -100,9 +99,7 @@ export default function WatchListTable({
         </TableHead>
         <TableBody>
           {data
-            ? data.map((product, index) => {
-                console.log("Item:", index, product)
-                console.log("Items Image:", index, product.productImage)
+            ? data.map((product) => {
                 return (
                   <TableRow key={product.id}>
                     <TableCell>

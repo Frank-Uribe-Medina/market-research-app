@@ -35,11 +35,9 @@ export default function SnapshotsTable({ keywords_list }: Props) {
   const handleChecked = (id: string) => {
     if (ids.includes(id)) {
       setIds(ids.filter((item) => item !== id))
-      console.log(`This is the Id of what was unchecked ${id}`)
       return
     }
     setIds((prev) => [...prev, id])
-    console.log(`This is the Id of what was checked ${id}`)
   }
 
   const handleDownload = async () => {

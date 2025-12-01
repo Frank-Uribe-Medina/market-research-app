@@ -18,10 +18,8 @@ function SignUpPage() {
   const siwg = async () => {
     try {
       const token = await signInWithPopup(auth, googleProvider)
-      console.log(token.user)
       const result = await UserActions.Create(token)
 
-      console.log(token)
       console.log(result)
     } catch (err: any) {
       console.error(err)
