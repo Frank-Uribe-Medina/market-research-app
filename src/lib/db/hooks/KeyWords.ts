@@ -19,7 +19,7 @@ export const useGetAllKeyWords = (userId = "", limit = 10) => {
     enabled: !!userId,
     queryKey: [CACHE_KEY.getAllKeywords, limit],
     queryFn: async ({}: InfiniteParam) => {
-      return await KeyWordActions.GetAllKeyWords(userId, limit, null)
+      return await KeyWordActions.GetAllUserSkus(userId, limit, null)
     },
     initialPageParam: null,
     getPreviousPageParam: (firstPage) => firstPage.lastKey ?? undefined,
@@ -44,7 +44,7 @@ export const useCombinedData = (userId = "", product_id = "", limit = 10) => {
     queryFn: async () => {
       const [productHistory, keywordLists] = await Promise.all([
         ProductActions.GetProductHistory(userId, product_id),
-        KeyWordActions.GetAllKeyWords(userId, limit, null),
+        KeyWordActions.GetAllUserSkus(userId, limit, null),
       ])
 
       return { productHistory, keywordLists }

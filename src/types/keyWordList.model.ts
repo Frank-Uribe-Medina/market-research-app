@@ -8,22 +8,19 @@ export interface BrightDataKeyWordShape {
   limitInput: number
 }
 
-export interface KeywordShapeFirebase {
+export interface UserAddedSku {
   id: string
   userId: string
-  keyword: string
-  marketplaces: string[]
-  limitInput: number
+  sku: string
+  marketplace: string
+  countryCode: number
   createdAt: Timestamp
-  isSpecificProduct: boolean
 }
 
 export interface QueueShape {
   id: string
   userId: string
-  keyword: string
-  marketplaces: string[]
-  limitInput: number
+  skus: UserAddedSku[]
 }
 
 export interface ProductHistory {

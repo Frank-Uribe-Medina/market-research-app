@@ -23,7 +23,6 @@ import { useDebouncedCallback } from "use-debounce"
 import { useSnapshot } from "valtio"
 
 import AddKeywordForm from "../components/forms/AddKeyword"
-import TrendingCategories from "../components/QuantitySelect"
 import Seo from "../components/Seo"
 import KeyWordTable from "../components/tables/KeyWordTable"
 import state from "../contexts/ValtioStore"
@@ -79,21 +78,21 @@ function Dashboard({ userData }: SSRProps) {
 
   if (!snap.user) {
     return (
-      <Box>
+      <Box sx={{ minHeight: "86vh", py: 5, bgcolor: "background.default" }}>
         <CircularProgress />
       </Box>
     )
   }
   if (!snap.user || !snap.isUserLoaded) {
     return (
-      <Box>
+      <Box sx={{ minHeight: "86vh", py: 5, bgcolor: "background.default" }}>
         <CircularProgress />
       </Box>
     )
   }
   if (!snap.isUserLoaded) {
     return (
-      <Box>
+      <Box sx={{ minHeight: "86vh", py: 5, bgcolor: "background.default" }}>
         <CircularProgress />
       </Box>
     )
@@ -116,7 +115,7 @@ function Dashboard({ userData }: SSRProps) {
 
           <Grid container spacing={3}>
             {" "}
-            <Grid size={6}>
+            <Grid size={12}>
               <Paper elevation={2} sx={{ p: 4 }}>
                 <AddKeywordForm
                   subPlan={subPlan}
@@ -126,34 +125,6 @@ function Dashboard({ userData }: SSRProps) {
                   isDisabled={isDisabled}
                   setIsDisabled={setIsDisabled}
                 />
-              </Paper>
-            </Grid>
-            {/* Marketplaces & Quantity Select */}
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Paper
-                elevation={2}
-                sx={{
-                  p: 3,
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  display={"flex"}
-                  justifyContent={"center"}
-                  alignItems={"center"}
-                  gap={1}
-                  color="textDisabled "
-                >
-                  <Tooltip title="WORK IN PROGRESS. See the Trending categories for each available marketplace. ">
-                    <InfoOutlineIcon fontSize={"small"} />
-                  </Tooltip>
-                  Trending Categories
-                </Typography>
-
-                <TrendingCategories />
               </Paper>
             </Grid>
             {/* Keyword Table */}
@@ -227,7 +198,7 @@ function Dashboard({ userData }: SSRProps) {
                 </Box>
                 <KeyWordTable
                   userId={snap.user.id}
-                  keywords={AllKeywords?.pages[0].content ?? null}
+                  skus={AllKeywords?.pages[0].content ?? null}
                   refetchKeywords={setRefetching}
                   refetching={refetching}
                   isDisabled={isDisabled}
