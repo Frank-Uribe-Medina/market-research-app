@@ -1,53 +1,40 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  limit,
-  orderBy,
-  query,
-  QueryConstraint,
-  startAfter,
-} from "firebase/firestore"
+import { collection, doc, getDoc, getDocs } from "firebase/firestore"
 
-import { ProductHistory } from "../../../types/keyWordList.model"
-import { LastKey } from "../../../types/params.model"
+import { UserAddedSku } from "../../../types/keyWordList.model"
+import { DatabaseProductData } from "../../../types/productdata.model"
 import { firestore } from ".."
 
 export const ProductActions = {
-  GetAllProductHistory: async (
-    userId: string,
-    limitNum: number,
-    lastKey: LastKey
-  ) => {
-    ///product_history/userid/products/keyword_id
+  GetAllProductHistory: async (userId: string) => {
     try {
-      const constraints: QueryConstraint[] = []
-      if (lastKey) {
-        constraints.push(startAfter(lastKey.ref))
+      const userListSkus = collection(firestore, `user_skus/${userId}/skus`)
+      const skuSnapshot = await getDocs(userListSkus)
+      if (skuSnapshot.empty) {
+        return { error: true, message: "User has no list" }
       }
-      constraints.push(orderBy("lastScraped", "desc"), limit(limitNum))
-
-      const collectionRef = collection(
-        firestore,
-        `product_history/${userId}/products/`
-      )
-      const queryRef = query(collectionRef, ...constraints)
-      const docsRef = await getDocs(queryRef)
-
-      const temp: ProductHistory[] = []
-      docsRef.docs.forEach((doc) => {
-        const d = doc.data() as ProductHistory
-        console.log(d)
-        temp.push({
-          id: doc.id,
-          lastScraped: d.lastScraped,
-          product_history: d.product_history,
-        })
+      const skus: string[] = []
+      skuSnapshot.docs.forEach((doc) => {
+        const data: UserAddedSku = doc.data() as UserAddedSku
+        skus.push(data.sku)
       })
-      const lk = docsRef.docs.at(-1)
-      console.log(temp)
-      return { error: false, content: temp, lastKey: lk }
+      if (skus.length <= 0) {
+        return { error: true, message: "Theres no skus to look for" }
+      }
+      const listProductHistory: DatabaseProductData[] = []
+      await Promise.all(
+        skus.map(async (sku) => {
+          const docRef = doc(firestore, `amazon_products/${sku}/latest/${sku}`)
+          const snapshot = await getDoc(docRef)
+          if (!snapshot.exists()) {
+            console.info({ error: true, message: `${sku} does not exist` })
+            return { error: true, message: `${sku} does not exist` }
+          }
+          listProductHistory.push({
+            ...snapshot,
+          } as unknown as DatabaseProductData)
+        })
+      )
+      return { error: false, content: listProductHistory }
     } catch (err: any) {
       console.error(err)
       return {
@@ -58,18 +45,15 @@ export const ProductActions = {
       }
     }
   },
-  GetProductHistory: async (userId: string, product_id: string) => {
+  GetProductHistory: async (userId: string, sku: string) => {
     ///product_history/userid/products/keyword_id
     try {
-      const docRef = doc(
-        firestore,
-        `product_history/${userId}/products/${product_id}`
-      )
+      const docRef = doc(firestore, `amazon_products/${sku}/latest/${sku}`)
       const snapshot = await getDoc(docRef)
       if (!snapshot.exists()) {
         return { error: true, message: "Document does not exist!" }
       }
-      const data = snapshot.data() as ProductHistory
+      const data = snapshot.data() as DatabaseProductData
 
       return { error: false, content: data }
     } catch (err: any) {

@@ -1,84 +1,56 @@
-import { Box, Container, Paper, Skeleton, Typography } from "@mui/material"
-import { AuthAction, withUserTokenSSR } from "next-firebase-auth"
+import { Box, CircularProgress, Container } from "@mui/material"
+import { AuthAction, withUser, withUserTokenSSR } from "next-firebase-auth"
 import React from "react"
 import { useSnapshot } from "valtio"
 
-import AddCompetitorForm from "../components/forms/AddCompetitorForm"
-import KeyWordTable from "../components/tables/KeyWordTable"
+import SnapshotsTable from "../components/tables/SnapShotsTable"
 import state from "../contexts/ValtioStore"
 import { useGetAllKeyWords } from "../lib/db/hooks/KeyWords"
+import { User } from "../types/user.model"
+
+interface ReportsPageProps {
+  readonly userData: User
+}
 
 export const getServerSideProps = withUserTokenSSR({
   whenUnauthed: AuthAction.REDIRECT_TO_LOGIN,
 })(async (ctx) => {
-  console.log(ctx)
+  const user = JSON.stringify(ctx.user)
   return {
-    props: {},
+    props: {
+      userData: user,
+    },
   }
 })
 
-export default function Watchlist() {
+function AnalysisPage({ userData }: ReportsPageProps) {
+  console.log(userData)
   const snap = useSnapshot(state)
-  const { data: allKeywords } = useGetAllKeyWords(snap.user?.id ?? "")
-
-  if (!snap.isUserLoaded && snap.user) {
-    return (
-      <Box>
-        {" "}
-        <Skeleton></Skeleton>
-      </Box>
-    )
-  }
-  if (!snap.user) {
-    return (
-      <Box>
-        {" "}
-        <Skeleton>No user </Skeleton>
-      </Box>
-    )
-  }
+  const keyword_pages = useGetAllKeyWords(snap.user?.id)
 
   return (
-    <Container sx={{ height: "86vh" }}>
-      <Box display={"flex"} flexDirection={"column"} gap={2}>
-        <Typography variant="h6">Competitor Analysis</Typography>
-        <Paper
-          sx={{
-            p: 2,
-            display: "flex",
-            flexDirection: "column",
-            width: "100%",
-            borderRadius: 2,
-          }}
-        >
-          <Box>
-            <AddCompetitorForm
-              isDisabled={false}
-              subPlan={"free"}
-              count={undefined}
-              setIsDisabled={function (): void {
-                throw new Error("Function not implemented.")
-              }}
-              refetchKeywords={function () {
-                throw new Error("Function not implemented.")
-              }}
-              refetching={false}
-            />
-          </Box>
-        </Paper>
-        <KeyWordTable
-          userId={undefined}
-          keywords={allKeywords?.pages[0].content ?? null}
-          isDisabled={false}
-          setIsDisabled={function (): void {
-            throw new Error("Function not implemented.")
-          }}
-          refetchKeywords={function () {
-            throw new Error("Function not implemented.")
-          }}
-          refetching={false}
-        />
+    <Container sx={{ minHeight: "86vh" }}>
+      <Box
+        sx={{
+          px: 3,
+          py: 4,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {keyword_pages.isLoading ? (
+          <>
+            <CircularProgress size={50} />
+          </>
+        ) : (
+          <SnapshotsTable
+            keywords_list={keyword_pages.data?.pages[0].content ?? []}
+          />
+        )}
       </Box>
     </Container>
   )
 }
+
+export default withUser<ReportsPageProps>()(AnalysisPage)
