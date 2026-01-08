@@ -98,7 +98,6 @@ export const WatchListActions = {
     }
   },
   DeleteProduct: async (userId: string, firebaseProductId: string) => {
-    console.log("IN THE DELETE PRODUCT", userId, firebaseProductId)
     try {
       const docRef = doc(
         firestore,

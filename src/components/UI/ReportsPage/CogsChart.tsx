@@ -11,13 +11,10 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
+import { DatabaseProductData } from "../../../types/productdata.model"
+
 // #region Sample data
-const data01 = [
-  { name: "Shipping", value: 400 },
-  { name: "Cost", value: 300 },
-  { name: "Profit", value: 300 },
-  { name: "Seller Fees", value: 200 },
-]
+
 const RADIAN = Math.PI / 180
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]
 
@@ -57,10 +54,30 @@ const renderCustomizedLabel = ({
     </text>
   )
 }
-export default function CogsChart() {
+
+interface Props {
+  readonly productHistory: DatabaseProductData
+}
+export default function CogsChart({ productHistory }: Props) {
   const theme = useTheme().palette
+  const shipping = 2
+  const sellerFees = productHistory.current_price * 0.15
+  const cost = productHistory.current_price - (sellerFees + shipping)
+  const profit = productHistory.current_price - cost
+  const data01 = [
+    { name: "Shipping", value: shipping },
+    {
+      name: "Cost",
+      value: cost,
+    },
+    { name: "Profit", value: profit },
+    { name: "Seller Fees", value: sellerFees },
+  ]
   return (
-    <Paper elevation={2} sx={{ p: 4, borderRadius: 2, height: "100%" }}>
+    <Paper
+      elevation={2}
+      sx={{ p: 4, borderRadius: 2, height: "100%", width: "100%" }}
+    >
       <Box display={"flex"} flexDirection={"column"}>
         <Typography
           fontWeight={900}

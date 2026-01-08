@@ -2,7 +2,6 @@ import dayjs from "dayjs"
 import {
   arrayUnion,
   collection,
-  deleteDoc,
   doc,
   getCountFromServer,
   getDoc,
@@ -15,6 +14,7 @@ import {
   startAfter,
   Timestamp,
   updateDoc,
+  where,
 } from "firebase/firestore"
 
 import { ProductHistory, UserAddedSku } from "../../../types/keyWordList.model"
@@ -64,6 +64,7 @@ export const KeyWordActions = {
         sku: sku,
         marketplace: marketplace,
         countryCode: countryCode,
+        deleted: false,
         createdAt: Timestamp.fromDate(dayjs().toDate()),
       } as UserAddedSku,
       { merge: true }
@@ -85,7 +86,11 @@ export const KeyWordActions = {
       if (lastKey) {
         constraints.push(startAfter(lastKey.ref))
       }
-      constraints.push(orderBy("createdAt", "desc"), limit(limitNum))
+      constraints.push(
+        orderBy("createdAt", "desc"),
+        limit(limitNum),
+        where("deleted", "==", false)
+      )
 
       const collectionRef = collection(firestore, `user_skus/${userId}/skus/`)
       const count = (await getCountFromServer(collectionRef)).data().count
@@ -144,7 +149,7 @@ export const KeyWordActions = {
       if (!docSnap.exists()) {
         throw "List Does not Exist."
       }
-      await deleteDoc(docRef)
+      await updateDoc(docRef, { deleted: true })
       return {
         error: false,
         message: "Successfully Deleted Keyword.",

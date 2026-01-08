@@ -54,7 +54,6 @@ export default function DetailedViewModal({ product_id }: Props) {
       if (result.error || !result.content) {
         return toast.error("No results for this Product Yet")
       }
-      console.log("we are here", product_history)
       setProductHistory(result.content ?? [])
     } catch (err: any) {
       console.error(err)
@@ -109,10 +108,14 @@ export default function DetailedViewModal({ product_id }: Props) {
               )}
             </Grid>
             <Grid size={6} height={500}>
-              <ConversionChart />
+              {product_history && (
+                <ConversionChart productHistory={product_history} />
+              )}
             </Grid>
             <Grid size={6} height={500}>
-              <CogsChart />
+              {product_history && (
+                <CogsChart productHistory={product_history} />
+              )}
             </Grid>
           </Grid>
         </Fade>

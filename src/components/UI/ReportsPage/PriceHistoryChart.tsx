@@ -47,20 +47,28 @@ export default function PriceHistoryChart({ productHistory }: Props) {
             <Typography fontSize={22} marginRight={2}>
               {productHistory.current_price}
               <span style={{ color: theme.grey[400] }}>
-                {productHistory.currency}
+                {" " + productHistory.currency}
               </span>
             </Typography>
-            <Typography color={theme.grey[400]} fontWeight={500}></Typography>
-            <Typography color="error" fontWeight={500}>
-              {((productHistory.current_price - productHistory.previous_price) /
-                productHistory.previous_price) *
-                100}
+
+            <Typography
+              color={
+                productHistory.previous_price < productHistory.current_price
+                  ? theme.success.main
+                  : theme.error.main
+              }
+              fontWeight={500}
+            >
+              {(
+                (productHistory.current_price - productHistory.previous_price) /
+                productHistory.previous_price
+              ).toFixed(2)}
               %
             </Typography>
             {productHistory.previous_price < productHistory.current_price ? (
-              <ArrowUp color="succes" />
+              <ArrowUp color={theme.success.main} />
             ) : (
-              <ArrowDown color="#e27c6e" />
+              <ArrowDown color={theme.error.main} />
             )}
           </Box>
         </Box>
@@ -83,9 +91,7 @@ export default function PriceHistoryChart({ productHistory }: Props) {
       >
         <XAxis
           dataKey="timestampInUTC"
-          tickFormatter={(value) =>
-            `${dayjs(value / 1_000_000).format("MM/12/YYYY")}`
-          }
+          tickFormatter={(value) => `${dayjs(value).format("MM/DD/YYYY")}`}
         />
         <YAxis width="auto" dataKey={"price"} />
         <Tooltip />

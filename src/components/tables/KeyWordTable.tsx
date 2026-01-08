@@ -12,6 +12,7 @@ import { toast } from "react-toastify"
 
 import { KeyWordActions } from "../../lib/db/actions/KeyWords"
 import { UserAddedSku } from "../../types/keyWordList.model"
+import { MARKETPLACES } from "../../types/supported.marketplaces"
 
 interface Props {
   readonly userId: string | undefined
@@ -64,13 +65,23 @@ export default function KeyWordTable({
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
-                  {isDisabled ? <Skeleton /> : sku.sku}
+                  {isDisabled ? (
+                    <Skeleton width={"100%"} height={"100%"} />
+                  ) : (
+                    sku.sku
+                  )}
                 </TableCell>
                 <TableCell component="th" scope="row">
                   <Chip label={sku.marketplace} />
                 </TableCell>
                 <TableCell component="th" scope="row">
-                  {isDisabled ? <Skeleton /> : sku.countryCode}
+                  {isDisabled ? (
+                    <Skeleton width={"100%"} height={"100%"} />
+                  ) : (
+                    MARKETPLACES[0].countries.find(
+                      (country) => country.code === sku.countryCode
+                    )?.name
+                  )}
                 </TableCell>
                 <TableCell component="th" scope="row">
                   <Chip

@@ -9,25 +9,13 @@ import {
   Tooltip,
 } from "recharts"
 
-// #region Sample data
-const data0 = {
-  nodes: [
-    { name: "Visit" },
-    { name: "Impressions" },
-    { name: "Click Rate" },
-    { name: "Purchases" },
-  ],
-  links: [
-    { source: 0, target: 1, value: 3728.3 },
-    { source: 1, target: 2, value: 1500 },
-    { source: 2, target: 3, value: 500 },
-  ],
-}
+import { DatabaseProductData } from "../../../types/productdata.model"
 
 // #endregion
 function MyCustomSankeyNode({ x, y, width, height, index, payload }: any) {
   const theme = useTheme().palette
-  const isOut = x + width + 6
+  const isRightSide = true
+
   return (
     <Layer key={`CustomNode${index}`}>
       <Rectangle
@@ -36,33 +24,52 @@ function MyCustomSankeyNode({ x, y, width, height, index, payload }: any) {
         width={width}
         height={height}
         fill="#5192ca"
-        fillOpacity="1"
+        fillOpacity={1}
       />
       <text
-        textAnchor={isOut ? "end" : "start"}
-        x={isOut ? x - 6 : x + width + 6}
+        textAnchor={isRightSide ? "start" : "end"}
+        x={isRightSide ? x + width + 6 : x - 6}
         y={y + height / 2}
-        fontSize="16"
+        fontSize={16}
         fill={theme.text.primary}
       >
         {payload.name}
       </text>
       <text
-        textAnchor={isOut ? "end" : "start"}
-        x={isOut ? x - 6 : x + width + 6}
-        y={y + height / 2 + 20}
-        fontSize="16"
+        textAnchor={isRightSide ? "start" : "end"}
+        x={isRightSide ? x + width + 6 : x - 6}
+        y={y + height / 2 + 18}
+        fontSize={14}
         fill={theme.text.primary}
-        fillOpacity="0.75"
+        fillOpacity={0.75}
       >
-        {`${payload.value}k`}
+        {`${payload.value}`}
       </text>
     </Layer>
   )
 }
+interface Props {
+  readonly productHistory: DatabaseProductData
+}
 
-export default function ConversionChart() {
+export default function ConversionChart({ productHistory }: Props) {
   const theme = useTheme().palette
+  const data = {
+    nodes: [
+      { name: "Impressions" }, // 0
+      { name: "Clicks" }, // 1
+      { name: "Purchases" }, // 2
+    ],
+    links: [
+      { source: 0, target: 1, value: productHistory.daily_click_est || 1 },
+      {
+        source: 1,
+        target: 2,
+        value: productHistory.daily_click_est * 0.05 || 1,
+      },
+      // Removed the invalid 2 → 3 link
+    ],
+  }
   return (
     <Paper
       elevation={2}
@@ -90,9 +97,9 @@ export default function ConversionChart() {
       </Box>
       <ResponsiveContainer width="100%" aspect={2}>
         <Sankey
-          data={data0}
+          data={data}
           node={MyCustomSankeyNode}
-          nodePadding={50}
+          nodePadding={2}
           link={{ stroke: "#77c878" }}
         >
           <Tooltip />

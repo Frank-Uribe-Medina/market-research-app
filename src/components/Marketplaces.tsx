@@ -1,31 +1,7 @@
 import { Box, InputLabel, MenuItem, Select } from "@mui/material"
 import { Controller, useWatch } from "react-hook-form"
 
-type SupportedCountry = {
-  code: number
-  flagClass: string
-  name: string
-}
-
-type Marketplace = {
-  label: string
-  logo: string
-  marketplace: string
-  countries: SupportedCountry[]
-}
-
-const MARKETPLACES: Marketplace[] = [
-  {
-    label: "Amazon",
-    logo: "https://1000logos.net/wp-content/uploads/2016/10/Amazon-Logo-500x281.png",
-    marketplace: "AMAZON",
-    countries: [
-      { code: 1, flagClass: "fi fi-us", name: "USA" },
-      { code: 20, flagClass: "fi fi-eg", name: "Egypt" },
-      { code: 52, flagClass: "fi fi-mx", name: "Mexico" },
-    ],
-  },
-]
+import { MARKETPLACES } from "../types/supported.marketplaces"
 
 interface Props {
   readonly control: any
@@ -49,7 +25,6 @@ export default function MarketPlaces({ control }: Props) {
               value={field.value}
               label="Marketplace"
               onChange={(e) => {
-                console.log(e.target.value)
                 field.onChange(e.target.value as string)
               }}
             >

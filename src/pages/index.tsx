@@ -6,12 +6,8 @@ import {
   Button,
   CircularProgress,
   Container,
-  FormControl,
   Grid,
-  InputLabel,
-  MenuItem,
   Paper,
-  Select,
   Tooltip,
   Typography,
 } from "@mui/material"
@@ -46,7 +42,7 @@ function Dashboard({ userData }: SSRProps) {
   const subPlan = userData.subplan ?? "free"
   const [refetching, setRefetching] = useState(false)
   const { data: AllKeywords, refetch: refetchKeywords } = useGetAllKeyWords(
-    snap.user?.id,
+    snap.user?.id ?? "",
     10
   )
 
@@ -66,15 +62,16 @@ function Dashboard({ userData }: SSRProps) {
         { userId: snap.user?.id }
       )
       if (response.data.error) {
-        throw Error(response.data.message)
+        throw response.data.message
       }
+      toast.success("Fetching new Data, Please Check the Analysis Tab")
     } catch (err: any) {
       toast.error(err)
       console.error(err)
     } finally {
       setIsDisabled(false)
     }
-  }, 500)
+  }, 1000)
 
   if (!snap.user) {
     return (
@@ -156,33 +153,7 @@ function Dashboard({ userData }: SSRProps) {
                     <Tooltip title="Free accounts cannot run scraping jobs in intervals. Please Upgrade if you want to run these jobs on a schedule. ">
                       <InfoOutlineIcon fontSize={"small"} />
                     </Tooltip>
-                    <FormControl sx={{ minWidth: 200 }}>
-                      <InputLabel id="check-every">Run on Every...</InputLabel>
-                      <Select
-                        labelId="check-every"
-                        id="check-every-select"
-                        aria-placeholder="tst"
-                      >
-                        <MenuItem value={60} disabled={subPlan === "free"}>
-                          Hour
-                        </MenuItem>
-                        <MenuItem value={360} disabled={subPlan === "free"}>
-                          6 Hours
-                        </MenuItem>
-                        <MenuItem value={1440} disabled={subPlan === "free"}>
-                          24 Hours
-                        </MenuItem>
-                        <MenuItem value={2160} disabled={subPlan === "free"}>
-                          36 Hours
-                        </MenuItem>
-                        <MenuItem value={4320} disabled={subPlan === "free"}>
-                          72 Hours
-                        </MenuItem>
-                        <MenuItem value={43200} disabled={subPlan === "free"}>
-                          Month
-                        </MenuItem>
-                      </Select>
-                    </FormControl>
+
                     <Button
                       variant="outlined"
                       startIcon={

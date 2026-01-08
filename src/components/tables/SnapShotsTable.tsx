@@ -12,9 +12,7 @@ import {
   useTheme,
 } from "@mui/material"
 import * as React from "react"
-import { useSnapshot } from "valtio"
 
-import state from "../../contexts/ValtioStore"
 import { UserAddedSku } from "../../types/keyWordList.model"
 import DetailedViewModal from "../UI/ReportsPage/DetailedViewModal"
 
@@ -24,8 +22,6 @@ interface Props {
 
 export default function SnapshotsTable({ keywords_list }: Props) {
   const theme = useTheme()
-  const snap = useSnapshot(state)
-  console.log(snap.user)
   return (
     <TableContainer
       component={Paper}
@@ -76,6 +72,7 @@ export default function SnapshotsTable({ keywords_list }: Props) {
           {keywords_list.map((keyword) => (
             <TableRow
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              key={keyword.id}
             >
               <TableCell>{keyword.sku}</TableCell>
               <TableCell>

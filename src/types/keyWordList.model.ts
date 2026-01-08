@@ -15,6 +15,7 @@ export interface UserAddedSku {
   marketplace: string
   countryCode: number
   createdAt: Timestamp
+  deleted?: boolean
 }
 
 export interface QueueShape {

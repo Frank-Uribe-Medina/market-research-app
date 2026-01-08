@@ -32,8 +32,6 @@ export default async function handler(
         ? `${process.env.BACKENDURL}/api/process/manual`
         : "http://localhost:5000/api/process/manual"
 
-    console.log(req.body)
-    console.log("Whats thos ", BACKENDURL)
     const adminDb = firebaseAdmin.app().firestore()
     const userId = req.body.userId
 
@@ -53,7 +51,6 @@ export default async function handler(
       skus: data,
     } as QueueShape)
 
-    console.log("What is this docs ID thats being sent to the backedn", jobId)
     const scrapeWorkerResponse = await axios.post(BACKENDURL, {
       docId: jobId,
     })

@@ -1,4 +1,4 @@
-import DashboardIcon from "@mui/icons-material/Dashboard"
+// import DashboardIcon from "@mui/icons-material/Dashboard"
 import HelpIcon from "@mui/icons-material/Help"
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye"
 import SettingsIcon from "@mui/icons-material/Settings"
@@ -32,12 +32,12 @@ const pages = [
     href: "/analysis",
     toolTip: "This is where the cogs of each product lives",
   },
-  {
-    name: "Category Planner",
-    icon: 2,
-    href: "/",
-    toolTip: "This is where the cogs of each category lives",
-  },
+  // {
+  //   name: "Category Planner",
+  //   icon: 2,
+  //   href: "/",
+  //   toolTip: "This is where the cogs of each category lives",
+  // },
   {
     name: "Settings",
     icon: 3,
@@ -73,7 +73,7 @@ export default function PermanentDrawerLeft() {
       >
         <Toolbar>
           {" "}
-          <Link href={"/"}>
+          <Link href={"https://brothersolutions.net"}>
             <Box
               sx={{
                 objectFit: "contain",
@@ -101,7 +101,6 @@ export default function PermanentDrawerLeft() {
                 <ListItemIcon>
                   {page.icon === 0 && <ShoppingBasket />}
                   {page.icon === 1 && <RemoveRedEyeIcon />}
-                  {page.icon === 2 && <DashboardIcon />}
                   {page.icon === 3 && <SettingsIcon />}
                   {page.icon === 4 && <HelpIcon />}
                 </ListItemIcon>

@@ -21,7 +21,6 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   try {
-    console.log(req.body)
     if (req.method !== "POST") {
       throw new Error("Missing user credentials.")
     }
@@ -69,7 +68,6 @@ export default async function handler(
     )
     res.status(200).json({ error: false, message: "Created a new account." })
   } catch (err: any) {
-    console.log(err)
     res.status(400).json({
       error: true,
       message: typeof err === "string" ? err : "Unable to create an account.",

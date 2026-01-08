@@ -26,7 +26,7 @@ export const getServerSideProps = withUserTokenSSR({
 function AnalysisPage({ userData }: ReportsPageProps) {
   console.log(userData)
   const snap = useSnapshot(state)
-  const keyword_pages = useGetAllKeyWords(snap.user?.id)
+  const keyword_pages = useGetAllKeyWords(snap.user?.id ?? "")
 
   return (
     <Container sx={{ minHeight: "86vh" }}>

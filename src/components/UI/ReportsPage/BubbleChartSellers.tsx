@@ -30,7 +30,6 @@ const converToChartData = (unformattedData: DatabaseProductData) => {
 // #endregion
 const BubbleChartSellers = ({ productHistory }: Props) => {
   const data = converToChartData(productHistory)
-  console.log(data)
   const theme = useTheme().palette
   return (
     <Paper elevation={2} sx={{ p: 4, borderRadius: 2, height: "100%" }}>
