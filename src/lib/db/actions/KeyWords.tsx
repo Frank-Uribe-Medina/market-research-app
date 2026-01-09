@@ -31,7 +31,9 @@ export const KeyWordActions = {
     subPlan: User["subplan"]
   ) => {
     const collectionRef = collection(firestore, `user_skus/${userId}/skus`)
-    const snap = await getCountFromServer(collectionRef)
+    const queryRef = query(collectionRef, where("deleted", "!=", true))
+    const snap = await getCountFromServer(queryRef)
+    console.log("We are here", snap.data())
     const sku_count = snap.data().count
     if (subPlan === "free" && sku_count >= 10) {
       return {
@@ -93,8 +95,8 @@ export const KeyWordActions = {
       )
 
       const collectionRef = collection(firestore, `user_skus/${userId}/skus/`)
-      const count = (await getCountFromServer(collectionRef)).data().count
       const queryRef = query(collectionRef, ...constraints)
+      const count = (await getCountFromServer(queryRef)).data().count
       const docsRef = await getDocs(queryRef)
 
       const temp: UserAddedSku[] = []
