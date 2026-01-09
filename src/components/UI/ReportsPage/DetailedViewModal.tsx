@@ -87,32 +87,32 @@ export default function DetailedViewModal({ product_id }: Props) {
               </Typography>
             </Grid>
 
-            <Grid size={6} maxHeight={400} height={400}>
+            <Grid size={{ md: 6, xs: 12 }} maxHeight={400}>
               {product_history && (
                 <BubbleChartSellers productHistory={product_history} />
               )}
             </Grid>
-            <Grid size={6} maxHeight={400} height={400}>
+            <Grid size={{ md: 6, xs: 12 }} maxHeight={400} height={400}>
               {product_history && (
                 <PriceHistoryChart productHistory={product_history} />
               )}
             </Grid>
-            <Grid size={6} height={500}>
+            <Grid size={{ md: 6, xs: 12 }} height={500}>
               {product_history && (
                 <ReviewRadarChart productHistory={product_history} />
               )}
             </Grid>
-            <Grid size={6} height={500}>
+            <Grid size={{ md: 6, xs: 12 }} height={500}>
               {product_history && (
                 <AssetsGrid productHistory={product_history} />
               )}
             </Grid>
-            <Grid size={6} height={500}>
+            <Grid size={{ md: 6, xs: 12 }} height={500}>
               {product_history && (
                 <ConversionChart productHistory={product_history} />
               )}
             </Grid>
-            <Grid size={6} height={500}>
+            <Grid size={{ md: 6, xs: 12 }} height={500}>
               {product_history && (
                 <CogsChart productHistory={product_history} />
               )}

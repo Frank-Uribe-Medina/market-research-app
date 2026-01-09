@@ -1,4 +1,6 @@
+import GoogleIcon from "@mui/icons-material/Google"
 import { Box, Button, Container, Link } from "@mui/material"
+import { signInWithPopup } from "firebase/auth"
 import { AuthAction, withUser } from "next-firebase-auth"
 import { ReactElement, useState } from "react"
 
@@ -8,10 +10,21 @@ import ResetPasswordForm from "../components/forms/ResetPassword"
 import FullScreenLoader from "../components/FullScreenLoader"
 import NoHeaderFooterLayout from "../components/layouts/NoHeaderFooterLayout"
 import Seo from "../components/Seo"
+import { auth, googleProvider } from "../lib/db"
 
 function LoginPage() {
   const [resetPasswordMode, setResetPasswordMode] = useState(false)
-
+  const siwg = async () => {
+    try {
+      console.log("Clicked")
+      await signInWithPopup(auth, googleProvider).catch(() => {
+        throw "Invalid credentials"
+      })
+    } catch (err: any) {
+      console.log("This is the error", err)
+      console.error(err)
+    }
+  }
   return (
     <>
       <Seo title="LOGIN" />
@@ -34,6 +47,13 @@ function LoginPage() {
             <>
               <ErrorBoundary>
                 <LoginForm />
+                <Button
+                  startIcon={<GoogleIcon />}
+                  variant="contained"
+                  onClick={() => void siwg()}
+                >
+                  Sign in with Google
+                </Button>
               </ErrorBoundary>
               <Box
                 sx={{

@@ -29,6 +29,15 @@ const nextConfig = {
           },
         ],
       },
+      {
+        source: "/(login|signup)",
+        headers: [
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "unsafe-none",
+          },
+        ],
+      },
     ]
   },
 }

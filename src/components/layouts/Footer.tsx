@@ -1,61 +1,115 @@
 import { Box, Grid, Typography } from "@mui/material"
 
+const pages = [
+  {
+    name: "Product Planner",
+    icon: 0,
+    href: "/",
+    toolTip: "Add keywords here",
+  },
+  {
+    name: "Product Anaylsis",
+    icon: 1,
+    href: "/analysis",
+    toolTip: "This is where the cogs of each product lives",
+  },
+  // {
+  //   name: "Category Planner",
+  //   icon: 2,
+  //   href: "/",
+  //   toolTip: "This is where the cogs of each category lives",
+  // },
+  {
+    name: "Settings",
+    icon: 3,
+    href: "/settings",
+    toolTip: "Reset password, change preferences",
+  },
+  {
+    name: "Help",
+    icon: 4,
+    href: "/help",
+    toolTip:
+      "General FAQs About 3PL, and other tutorials on infering this data",
+  },
+]
+const contacts = [
+  {
+    name: "Contact Email",
+    icon: 0,
+    href: "mailto:contact@brothersolutions.net",
+    toolTip: "Get Support Here",
+  },
+  {
+    name: "contact@brothersolutions.net",
+    icon: 1,
+    href: "mailto:contact@brothersolutions.net",
+    toolTip: "This is where the cogs of each product lives",
+  },
+]
 export default function Footer() {
   return (
-    // <Box
-    //   sx={{
-    //     height: 250,
-    //     bgcolor: "primary.main",
-    //     display: "flex",
-    //     justifyContent: "center",
-    //     alignItems: "center",
-    //   }}
-    // >
     <Grid
       container
       sx={{
-        height: 250,
         bgcolor: "primary.main",
         display: "flex",
         justifyContent: "center",
         alignContent: "center",
+        pt: 4,
+        pb: 4,
+        pr: 2,
+        pl: 2,
+        mt: 4,
       }}
     >
-      <Grid size={{ md: 4, xs: 12 }}>
+      <Grid
+        size={{ md: 12, xs: 12 }}
+        display={"flex"}
+        flexDirection={"column"}
+        justifyContent={"center"}
+        alignItems={"center"}
+      >
         {" "}
         <Box
           display={"flex"}
           flexDirection={"column"}
           justifyContent={"center"}
           alignItems={"center"}
+          component={"a"}
+          href="https://brothersolutions.net"
         >
           <img
             src="/assets/images/logo.png"
-            alt=""
+            alt="Amazon Product Data"
             style={{ objectFit: "contain", height: 75 }}
           />
-          <Typography variant="h4">Brother Solutions</Typography>
+          <Typography
+            variant="h4"
+            fontWeight={900}
+            flexWrap={"wrap"}
+            textAlign={"center"}
+          >
+            A Brother Solutions Product
+          </Typography>
         </Box>
       </Grid>
-      <Grid size={{ md: 3, xs: 12 }}>
-        <Box display={"flex"} flexDirection={"column"}>
-          <Typography fontWeight="bold" variant="h6">
-            Naviagtion
+      <Grid size={{ md: 3, xs: 6 }} display={"flex"} flexDirection={"column"}>
+        {pages.map((page) => (
+          <Typography key={page.name} component={"a"} href={page.href}>
+            {page.name}
           </Typography>
-          <Typography variant="h6">Dashboard</Typography>
-          <Typography variant="h6"> Reports</Typography>
-          <Typography variant="h6">Support</Typography>
-        </Box>
+        ))}
       </Grid>
-      <Grid size={{ md: 3, xs: 12 }}>
-        <Box display={"flex"} flexDirection={"column"}>
-          <Typography fontWeight="bold" variant="h6">
-            Contact
+      <Grid size={{ md: 3, xs: 6 }} display={"flex"} flexDirection={"column"}>
+        {contacts.map((page) => (
+          <Typography key={page.name} component={"a"} href={page.href}>
+            {page.name}
           </Typography>
-          <Typography variant="h6">Email</Typography>
-          <Typography variant="h6"> Discord</Typography>
-          <Typography variant="h6">Phone</Typography>
-        </Box>
+        ))}
+      </Grid>
+      <Grid size={12} textAlign={"center"}>
+        Brother Solutions 2025 ©
       </Grid>
     </Grid>
     // </Box>

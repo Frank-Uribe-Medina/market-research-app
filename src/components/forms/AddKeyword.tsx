@@ -1,6 +1,13 @@
 import { yupResolver } from "@hookform/resolvers/yup"
 import InfoOutlineIcon from "@mui/icons-material/InfoOutline"
-import { Box, Button, TextField, Tooltip, Typography } from "@mui/material"
+import {
+  Box,
+  Button,
+  Grid,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "react-toastify"
 import { useDebouncedCallback } from "use-debounce"
@@ -82,55 +89,52 @@ export default function AddKeywordForm({
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     <form onSubmit={handleSubmit(onSubmit, onError)}>
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-start",
-            gap: 2,
-          }}
-        >
-          <Controller
-            name="sku"
-            control={control}
-            render={({ field }) => (
-              <Box>
-                <Typography display={"flex"} gap={1}>
-                  {" "}
-                  <Tooltip title="SKU can be ASINS, Product ID, whatever the platform youre searching uses internally.">
-                    <InfoOutlineIcon />
-                  </Tooltip>
-                  Add SKU
-                </Typography>
+        <Grid container>
+          <Grid size={{ xs: 12 }}>
+            {" "}
+            <Controller
+              name="sku"
+              control={control}
+              render={({ field }) => (
+                <Box width={"100%"}>
+                  <Typography display={"flex"} gap={1}>
+                    {" "}
+                    <Tooltip title="SKU can be ASINS, Product ID, whatever the platform youre searching uses internally.">
+                      <InfoOutlineIcon />
+                    </Tooltip>
+                    Add SKU
+                  </Typography>
 
-                <TextField
-                  {...field}
-                  fullWidth
-                  placeholder="e.g. B094KYXQYN "
-                  error={errors.sku ? true : false}
-                  helperText={errors.sku?.message ?? ""}
-                />
-              </Box>
-            )}
-          />
-          <Box display={"flex"} gap={2} width={"50%"}>
+                  <TextField
+                    {...field}
+                    fullWidth
+                    placeholder="e.g. B094KYXQYN "
+                    error={errors.sku ? true : false}
+                    helperText={errors.sku?.message ?? ""}
+                  />
+                </Box>
+              )}
+            />
+          </Grid>
+          <Grid size={{ xs: 12 }}>
             <MarketPlaces control={control} />
-          </Box>
-        </Box>
-
-        <Typography>
-          Term Limit {count ?? 0} / {subPlan === "free" ? 10 : null}{" "}
-          {subPlan === "pro" ? 50 : null} {subPlan === "business" ? 300 : null}
-        </Typography>
-
-        <Button
-          type="submit"
-          disabled={isDisabled}
-          variant="contained"
-          fullWidth
-        >
-          Submit
-        </Button>
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <Typography>
+              Term Limit {count ?? 0} / {subPlan === "free" ? 10 : null}{" "}
+              {subPlan === "pro" ? 50 : null}{" "}
+              {subPlan === "business" ? 300 : null}
+            </Typography>
+            <Button
+              type="submit"
+              disabled={isDisabled}
+              variant="contained"
+              fullWidth
+            >
+              Add ASIN
+            </Button>
+          </Grid>
+        </Grid>
       </Box>
     </form>
   )

@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, useTheme } from "@mui/material"
+import { Box, Grid, Paper, Typography, useTheme } from "@mui/material"
 import { UsersRound } from "lucide-react"
 import { Bar, BarChart, XAxis, YAxis } from "recharts"
 
@@ -33,44 +33,41 @@ const BubbleChartSellers = ({ productHistory }: Props) => {
   const theme = useTheme().palette
   return (
     <Paper elevation={2} sx={{ p: 4, borderRadius: 2, height: "100%" }}>
-      <Box display={"flex"} flexDirection={"column"}>
-        <Typography
-          fontWeight={900}
-          fontSize={22}
-          display={"flex"}
-          gap={1}
-          alignItems={"center"}
-        >
-          <UsersRound />
-          Number of Sellers
-        </Typography>
-        <Box>
-          <Typography fontSize={22} color={theme.grey[400]}>
+      <Grid container>
+        <Grid size={{ md: 12 }}>
+          <Box display={"flex"} gap={1} flexWrap={"wrap"}>
+            <UsersRound />
+
+            <Typography fontWeight={900} variant="h6">
+              Number of Sellers
+            </Typography>
+          </Box>
+
+          <Typography variant="body1" color={theme.grey[400]}>
             Sellers who are also selling this SKU
           </Typography>
-        </Box>
-      </Box>
-
-      <BarChart
-        style={{
-          width: "100%",
-          maxWidth: "700px",
-          maxHeight: "70vh",
-          aspectRatio: 1.618,
-        }}
-        responsive
-        data={data}
-        margin={{
-          top: 5,
-          right: 0,
-          left: 0,
-          bottom: 5,
-        }}
-      >
-        <XAxis dataKey="x" hide />
-        <YAxis width="auto" hide />
-        <Bar dataKey="x" fill="#82ca9d" radius={[10, 10, 0, 0]} label />
-      </BarChart>
+        </Grid>
+        <BarChart
+          style={{
+            width: "100%",
+            maxWidth: "700px",
+            maxHeight: 100,
+            aspectRatio: 1.618,
+          }}
+          responsive
+          data={data}
+          margin={{
+            top: 5,
+            right: 0,
+            left: 0,
+            bottom: 5,
+          }}
+        >
+          <XAxis dataKey="x" hide />
+          <YAxis width="auto" hide />
+          <Bar dataKey="x" fill="#82ca9d" radius={[10, 10, 0, 0]} label />
+        </BarChart>
+      </Grid>
     </Paper>
   )
 }

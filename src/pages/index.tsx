@@ -31,6 +31,7 @@ interface SSRProps {
 }
 export const getServerSideProps = withUserTokenSSR({
   whenUnauthed: AuthAction.REDIRECT_TO_LOGIN,
+  whenAuthed: AuthAction.RENDER,
 })(async (ctx) => {
   return {
     props: { userData: JSON.stringify(ctx.user) },
@@ -54,6 +55,9 @@ function Dashboard({ userData }: SSRProps) {
     }
     getFreshList()
   }, [refetching, refetchKeywords])
+  useEffect(() => {
+    console.log(snap.user?.subplan)
+  }, [snap])
 
   const runList = useDebouncedCallback(async () => {
     try {
@@ -75,62 +79,89 @@ function Dashboard({ userData }: SSRProps) {
 
   if (!snap.user) {
     return (
-      <Box sx={{ minHeight: "86vh", py: 5, bgcolor: "background.default" }}>
+      <Container
+        sx={{
+          minHeight: "86vh",
+          py: 5,
+          bgcolor: "background.default",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <CircularProgress />
-      </Box>
+      </Container>
     )
   }
   if (!snap.user || !snap.isUserLoaded) {
     return (
-      <Box sx={{ minHeight: "86vh", py: 5, bgcolor: "background.default" }}>
+      <Container
+        sx={{
+          minHeight: "86vh",
+          py: 5,
+          bgcolor: "background.default",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <CircularProgress />
-      </Box>
+      </Container>
     )
   }
   if (!snap.isUserLoaded) {
     return (
-      <Box sx={{ minHeight: "86vh", py: 5, bgcolor: "background.default" }}>
+      <Container
+        sx={{
+          minHeight: "86vh",
+          py: 5,
+          bgcolor: "background.default",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <CircularProgress />
-      </Box>
+      </Container>
     )
   }
 
   return (
     <>
       <Seo title="Home" />
-      <Box sx={{ minHeight: "86vh", py: 5, bgcolor: "background.default" }}>
-        <Container maxWidth="lg">
-          {/* Header */}
-          <Box sx={{ mb: 4, textAlign: "center" }}>
-            <Typography variant="h4" component="h1" gutterBottom>
-              Market Recon
-            </Typography>
-            <Typography variant="subtitle1" color="text.secondary">
-              Cross-Market Research Dashboard
-            </Typography>
-          </Box>
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Box sx={{ mb: 4, textAlign: "center" }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Market Recon
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary">
+            Cross-Market Research Dashboard
+          </Typography>
+        </Box>
 
-          <Grid container spacing={3}>
-            {" "}
-            <Grid size={12}>
-              <Paper elevation={2} sx={{ p: 4 }}>
-                <AddKeywordForm
-                  subPlan={subPlan}
-                  count={AllKeywords?.pages[0].count}
-                  refetchKeywords={setRefetching}
-                  refetching={refetching}
-                  isDisabled={isDisabled}
-                  setIsDisabled={setIsDisabled}
-                />
-              </Paper>
-            </Grid>
-            {/* Keyword Table */}
-            <Grid size={{ xs: 12 }}>
-              <Paper
-                elevation={2}
-                sx={{ p: 3, display: "flex", flexDirection: "column" }}
-              >
-                <Box display={"flex"} justifyContent={"space-between"} mb={2}>
+        <Grid container spacing={3}>
+          {" "}
+          <Grid size={12}>
+            <Paper elevation={2} sx={{ p: 4 }}>
+              <AddKeywordForm
+                subPlan={subPlan}
+                count={AllKeywords?.pages[0].count}
+                refetchKeywords={setRefetching}
+                refetching={refetching}
+                isDisabled={isDisabled}
+                setIsDisabled={setIsDisabled}
+              />
+            </Paper>
+          </Grid>
+          {/* Keyword Table */}
+          <Grid size={{ xs: 12 }}>
+            <Paper
+              elevation={2}
+              sx={{ p: 3, display: "flex", flexDirection: "column" }}
+            >
+              <Grid container mb={2}>
+                <Grid size={{ md: 6 }}>
+                  {" "}
                   <Typography
                     variant="h6"
                     gutterBottom
@@ -143,43 +174,45 @@ function Dashboard({ userData }: SSRProps) {
                     </Tooltip>
                     Your Search Terms
                   </Typography>
-                  <Box
-                    display={"flex"}
-                    flexDirection={"row"}
-                    justifyContent={"center"}
-                    alignItems={"center"}
-                    gap={2}
+                </Grid>
+                <Grid
+                  size={{ md: 6 }}
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    alignItems: "center",
+                    justifyContent: "end",
+                  }}
+                >
+                  {" "}
+                  <Tooltip title="Free accounts cannot run scraping jobs in intervals. Please Upgrade if you want to run these jobs on a schedule. ">
+                    <InfoOutlineIcon fontSize={"small"} />
+                  </Tooltip>
+                  <Button
+                    variant="outlined"
+                    startIcon={
+                      subPlan === "free" ? <RestartAltIcon /> : <SaveAsIcon />
+                    }
+                    disabled={isDisabled}
+                    onClick={() => void runList()}
+                    sx={{ height: "100%" }}
                   >
-                    <Tooltip title="Free accounts cannot run scraping jobs in intervals. Please Upgrade if you want to run these jobs on a schedule. ">
-                      <InfoOutlineIcon fontSize={"small"} />
-                    </Tooltip>
-
-                    <Button
-                      variant="outlined"
-                      startIcon={
-                        subPlan === "free" ? <RestartAltIcon /> : <SaveAsIcon />
-                      }
-                      disabled={isDisabled}
-                      onClick={() => void runList()}
-                      sx={{ minWidth: 200, height: "100%" }}
-                    >
-                      {subPlan === "free" ? "Run Now" : "Save List"}
-                    </Button>
-                  </Box>
-                </Box>
-                <KeyWordTable
-                  userId={snap.user.id}
-                  skus={AllKeywords?.pages[0].content ?? null}
-                  refetchKeywords={setRefetching}
-                  refetching={refetching}
-                  isDisabled={isDisabled}
-                  setIsDisabled={setIsDisabled}
-                />
-              </Paper>
-            </Grid>
+                    {subPlan === "free" ? "Run Now" : "Save List"}
+                  </Button>
+                </Grid>
+              </Grid>
+              <KeyWordTable
+                userId={snap.user.id}
+                skus={AllKeywords?.pages[0].content ?? null}
+                refetchKeywords={setRefetching}
+                refetching={refetching}
+                isDisabled={isDisabled}
+                setIsDisabled={setIsDisabled}
+              />
+            </Paper>
           </Grid>
-        </Container>
-      </Box>
+        </Grid>
+      </Container>
     </>
   )
 }

@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Container } from "@mui/material"
 import { AuthAction, withUser, withUserTokenSSR } from "next-firebase-auth"
-import React from "react"
+import React, { useEffect } from "react"
 import { useSnapshot } from "valtio"
 
 import SnapshotsTable from "../components/tables/SnapShotsTable"
@@ -28,6 +28,59 @@ function AnalysisPage({ userData }: ReportsPageProps) {
   const snap = useSnapshot(state)
   const keyword_pages = useGetAllKeyWords(snap.user?.id ?? "")
 
+  useEffect(() => {
+    console.log(snap.user?.name)
+    console.log(keyword_pages.isFetched)
+  }, [snap, keyword_pages.isFetched])
+
+  if (!snap.user || !keyword_pages.data) {
+    return (
+      <Container
+        sx={{
+          minHeight: "86vh",
+          py: 5,
+          bgcolor: "background.default",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress />
+      </Container>
+    )
+  }
+  if (!snap.user || keyword_pages.isLoading) {
+    return (
+      <Container
+        sx={{
+          minHeight: "86vh",
+          py: 5,
+          bgcolor: "background.default",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress />
+      </Container>
+    )
+  }
+  if (!snap.isUserLoaded) {
+    return (
+      <Container
+        sx={{
+          minHeight: "86vh",
+          py: 5,
+          bgcolor: "background.default",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress />
+      </Container>
+    )
+  }
   return (
     <Container sx={{ minHeight: "86vh" }}>
       <Box
@@ -39,15 +92,9 @@ function AnalysisPage({ userData }: ReportsPageProps) {
           alignItems: "center",
         }}
       >
-        {keyword_pages.isLoading ? (
-          <>
-            <CircularProgress size={50} />
-          </>
-        ) : (
-          <SnapshotsTable
-            keywords_list={keyword_pages.data?.pages[0].content ?? []}
-          />
-        )}
+        <SnapshotsTable
+          keywords_list={keyword_pages.data?.pages[0].content ?? []}
+        />
       </Box>
     </Container>
   )

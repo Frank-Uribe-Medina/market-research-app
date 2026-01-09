@@ -34,9 +34,8 @@ export default function LoginForm() {
   } = useForm({
     resolver: yupResolver(LoginSchema),
     defaultValues: {
-      email: "demo@demo.com",
-      // eslint-disable-next-line sonarjs/no-hardcoded-passwords
-      password: "demo123!@#",
+      email: "",
+      password: "",
     },
   })
 

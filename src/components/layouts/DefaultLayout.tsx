@@ -20,10 +20,15 @@ export default function DefaultLayout({ children }: Props) {
             <Header />
 
             <main className="App">
-              <PermanentDrawerLeft />
-              {children}
+              <Grid container>
+                <Grid size={{ lg: 2, md: 3, sm: 4 }}>
+                  <PermanentDrawerLeft />
+                </Grid>
+                <Grid size={{ lg: 10, md: 9, sm: 8, xs: 12 }}>
+                  {children} <Footer />
+                </Grid>
+              </Grid>
             </main>
-            <Footer />
           </Grid>
         </Grid>
       </Box>
