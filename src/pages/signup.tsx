@@ -1,6 +1,6 @@
 import GoogleIcon from "@mui/icons-material/Google"
 import { Box, Button, Link, Typography } from "@mui/material"
-import { signInWithRedirect } from "firebase/auth"
+import { signInWithPopup } from "firebase/auth"
 // import { getAuth, signInWithRedirect } from "firebase/auth"
 import Image from "next/image"
 import { AuthAction, withUser } from "next-firebase-auth"
@@ -18,7 +18,7 @@ import { BLUR_DATA_URL } from "../utils"
 function SignUpPage() {
   const siwg = async () => {
     try {
-      const token = await signInWithRedirect(auth, googleProvider).catch(() => {
+      const token = await signInWithPopup(auth, googleProvider).catch(() => {
         throw "Credentials not Valid"
       })
       const result = await UserActions.Create(token)
