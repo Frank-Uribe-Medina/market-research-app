@@ -28,7 +28,7 @@ export default function UpdateAccount({ user }: Props) {
   } = useForm({
     resolver: yupResolver(UpdateAccountSchema),
     defaultValues: {
-      name: user.name,
+      name: user.firstName,
       phone: user.phone,
     },
   })

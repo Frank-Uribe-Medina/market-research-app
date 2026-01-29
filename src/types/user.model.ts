@@ -7,7 +7,8 @@ import { Timestamp } from "firebase/firestore"
 export type User = {
   id: string
   email: string
-  name: string
+  firstName: string
+  lastName: string
   customer_id: string
   phone: string
   tags: string[]

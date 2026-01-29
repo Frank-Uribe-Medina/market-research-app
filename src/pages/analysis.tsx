@@ -29,7 +29,7 @@ function AnalysisPage({ userData }: ReportsPageProps) {
   const keyword_pages = useGetAllKeyWords(snap.user?.id ?? "")
 
   useEffect(() => {
-    console.log(snap.user?.name)
+    console.log(snap.user?.firstName)
     console.log(keyword_pages.isFetched)
   }, [snap, keyword_pages.isFetched])
 

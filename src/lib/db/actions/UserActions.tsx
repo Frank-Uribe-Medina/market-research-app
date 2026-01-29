@@ -1,5 +1,4 @@
 import axios from "axios"
-import { UserCredential } from "firebase/auth"
 import {
   collection,
   doc,
@@ -20,10 +19,17 @@ import { DEFAULT_ERROR } from "../../../utils/constants"
 import { firestore } from ".."
 
 export const UserActions = {
-  Create: async (UserCred?: UserCredential) => {
+  Create: async (data: any) => {
     try {
-      await axios.post("/api/user/create", { userCred: UserCred })
-      return { error: false, message: "Successfully created an account." }
+      type Response = {
+        error: boolean
+        message: string
+      }
+      console.log(`Whats in the actions, ${JSON.stringify(data)}`)
+      const response = await axios.post<Response>("/api/user/create", data)
+      console.log("This is in the actions", response)
+      if (response.data)
+        return { error: false, message: "Successfully created an account." }
     } catch (err: any) {
       if (axios.isAxiosError(err) && err.response) {
         return {
