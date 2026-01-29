@@ -93,22 +93,6 @@ function Dashboard({ userData }: SSRProps) {
       </Container>
     )
   }
-  if (!snap.user || !snap.isUserLoaded) {
-    return (
-      <Container
-        sx={{
-          minHeight: "86vh",
-          py: 5,
-          bgcolor: "background.default",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <CircularProgress />
-      </Container>
-    )
-  }
   if (!snap.isUserLoaded) {
     return (
       <Container

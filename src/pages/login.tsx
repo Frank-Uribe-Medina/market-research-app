@@ -1,8 +1,10 @@
 import GoogleIcon from "@mui/icons-material/Google"
 import { Box, Button, Container, Link } from "@mui/material"
 import { signInWithPopup } from "firebase/auth"
+import { useRouter } from "next/router"
 import { AuthAction, withUser } from "next-firebase-auth"
 import { ReactElement, useState } from "react"
+import { toast } from "react-toastify"
 
 import ErrorBoundary from "../components/ErrorBoundary"
 import LoginForm from "../components/forms/Login"
@@ -11,18 +13,28 @@ import FullScreenLoader from "../components/FullScreenLoader"
 import NoHeaderFooterLayout from "../components/layouts/NoHeaderFooterLayout"
 import Seo from "../components/Seo"
 import { auth, googleProvider } from "../lib/db"
+import { UserActions } from "../lib/db/actions/UserActions"
 
 function LoginPage() {
   const [resetPasswordMode, setResetPasswordMode] = useState(false)
-  const siwg = async () => {
+  const [isDisabled, setIsDisabled] = useState(false)
+  const router = useRouter()
+  const signInWithGoogle = async () => {
     try {
-      console.log("Clicked")
-      await signInWithPopup(auth, googleProvider).catch(() => {
-        throw "Invalid credentials"
-      })
+      const token = await signInWithPopup(auth, googleProvider)
+      if (!token) {
+        toast.error("Could not Sign in with google")
+      }
+      const result = await UserActions.Get(token.user.uid)
+      if (result.error) {
+        return router.push("/signup")
+      }
+
+      return router.push(`/`)
     } catch (err: any) {
-      console.log("This is the error", err)
-      console.error(err)
+      return toast.error(typeof err === "string" ? err : "Unable to sign up")
+    } finally {
+      setIsDisabled(false)
     }
   }
   return (
@@ -50,7 +62,8 @@ function LoginPage() {
                 <Button
                   startIcon={<GoogleIcon />}
                   variant="contained"
-                  onClick={() => void siwg()}
+                  disabled={isDisabled}
+                  onClick={() => void signInWithGoogle()}
                 >
                   Sign in with Google
                 </Button>
@@ -87,7 +100,7 @@ LoginPage.getLayout = function getLayout(page: ReactElement) {
 }
 
 export default withUser({
-  whenAuthed: AuthAction.REDIRECT_TO_APP,
+  whenAuthed: AuthAction.RENDER,
   whenUnauthedBeforeInit: AuthAction.SHOW_LOADER,
   whenUnauthedAfterInit: AuthAction.RENDER,
   LoaderComponent: FullScreenLoader,

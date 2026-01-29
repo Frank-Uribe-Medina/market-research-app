@@ -29,7 +29,7 @@ export const getServerSideProps = withUserTokenSSR({
 
 function SettingsPage() {
   const snap = useSnapshot(state)
-  const [fullName, setFullName] = useState(snap.user?.name ?? "John Smith")
+  const [fullName, setFullName] = useState(snap.user?.firstName ?? "John Smith")
   const [email, setEmail] = useState(snap.user?.email ?? "some@email.com")
   const [isDisabled, setIsDisabled] = useState(false)
   const onSubmit = useDebouncedCallback(async () => {
